@@ -64,6 +64,7 @@ export function HomeHeader({
           </button>
         </div>
 
+        {/* Card Toko */}
         <div className="absolute inset-x-4 bottom-0 z-10 translate-y-1/2">
           <HomeStoreCard
             nameStore={nameStore}

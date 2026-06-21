@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { gooeyToast } from "goey-toast";
 
+import type { OrderType } from "@/modules/customer/domain/types/order";
+
 import { HomeHeader } from "../components/HomeHeader";
+import { HomeOrderTypeCard } from "../components/HomeOrderTypeCard";
 
 export function HomePage() {
+  const [orderType] = useState<OrderType>("dine-in");
+
   return (
     <div className="flex flex-1 flex-col">
+      {/* Header Section */}
       <HomeHeader
         nameStore="RM Ayam Bakar Ammar – Bandung Kota"
         openHours="Buka hari ini, 00:00-23:59"
@@ -19,21 +26,16 @@ export function HomePage() {
         }
       />
 
-      <main className="flex flex-1 flex-col gap-4 px-4 py-6">
-        <section className="rounded-2xl bg-zinc-900 px-4 py-5 text-white">
-          <p className="text-sm text-zinc-300">Selamat datang</p>
-          <p className="mt-1 text-lg font-semibold">
-            Base page customer siap dikembangkan per modul.
-          </p>
-        </section>
+      <main className="flex flex-1 flex-col gap-4 px-4 pb-6 mt-4">
 
-        <section className="rounded-2xl border border-zinc-200 p-4">
-          <h2 className="text-sm font-semibold text-zinc-900">Quick info</h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Layout ini mobile-first. Kalau dibuka di web, lebar maksimum tetap
-            seperti layar HP.
-          </p>
-        </section>
+        {/* Order Type Card */}
+        <HomeOrderTypeCard
+          orderType={orderType}
+          tableNumber={10}
+          onClickOrderType={() =>
+            gooeyToast.info("Fitur Pilih Tipe Pemesanan Coming Soon!")
+          }
+        />
       </main>
     </div>
   );
