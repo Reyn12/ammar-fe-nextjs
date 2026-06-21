@@ -4,12 +4,17 @@ import { useState } from "react";
 import { gooeyToast } from "goey-toast";
 
 import type { OrderType } from "@/modules/customer/domain/types/order";
+import { HOME_MENU_CATEGORIES } from "@/modules/customer/domain/constants/menu-categories";
 
+import { HomeCategoryTabs } from "../components/HomeCategoryTabs";
 import { HomeHeader } from "../components/HomeHeader";
 import { HomeOrderTypeCard } from "../components/HomeOrderTypeCard";
 
 export function HomePage() {
   const [orderType] = useState<OrderType>("dine-in");
+  const [activeCategoryId, setActiveCategoryId] = useState(
+    HOME_MENU_CATEGORIES[0].id,
+  );
 
   return (
     <div className="flex flex-1 flex-col">
@@ -35,6 +40,13 @@ export function HomePage() {
           onClickOrderType={() =>
             gooeyToast.info("Fitur Pilih Tipe Pemesanan Coming Soon!")
           }
+        />
+
+        {/* Tab Menu Kategori Food */}  
+        <HomeCategoryTabs
+          categories={HOME_MENU_CATEGORIES}
+          activeCategoryId={activeCategoryId}
+          onSelectCategory={setActiveCategoryId}
         />
       </main>
     </div>
