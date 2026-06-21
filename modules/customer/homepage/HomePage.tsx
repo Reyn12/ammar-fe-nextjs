@@ -16,16 +16,18 @@ import { HomeCategoryTabs } from "./components/HomeCategoryTabs";
 import { HomeCheckoutBar } from "./components/HomeCheckoutBar";
 import { HomeHeader } from "./components/HomeHeader";
 import { HomeMenuListBuilder } from "./components/HomeMenuListBuilder";
+import { HomeOrderTypeBottomSheet } from "./components/HomeOrderTypeBottomSheet";
 import { HomeOrderTypeCard } from "./components/HomeOrderTypeCard";
 import { HomeSidebar } from "./components/HomeSidebar";
 import { HomeStickyNavbar } from "./components/HomeStickyNavbar";
 
 export function HomePage() {
-  const [orderType] = useState<OrderType>("dine-in");
+  const [orderType, setOrderType] = useState<OrderType>("dine-in");
   const [activeCategoryId, setActiveCategoryId] = useState(
     "semua",
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
 
   const filteredSections = useMemo(
@@ -48,9 +50,7 @@ export function HomePage() {
         <HomeOrderTypeCard
           orderType={orderType}
           tableNumber="10"
-          onClickOrderType={() =>
-            gooeyToast.info("Fitur Pilih Tipe Pemesanan Coming Soon!")
-          }
+          onClickOrderType={() => setIsOrderTypeSheetOpen(true)}
         />
 
         <div ref={sentinelRef} aria-hidden className="h-px shrink-0" />
@@ -107,6 +107,13 @@ export function HomePage() {
         onClickOrderHistory={() =>
           gooeyToast.info("Fitur Riwayat Pesanan Coming Soon!")
         }
+      />
+
+      <HomeOrderTypeBottomSheet
+        isOpen={isOrderTypeSheetOpen}
+        value={orderType}
+        onClose={() => setIsOrderTypeSheetOpen(false)}
+        onChange={setOrderType}
       />
     </div>
   );

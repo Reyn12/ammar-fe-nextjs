@@ -36,7 +36,7 @@ export function HomeMenuListItem({
         <button
           type="button"
           onClick={onAdd}
-          className="mt-auto w-full rounded-full border border-[#FA52A8] py-1.5 text-sm font-medium text-[#FA52A8] transition hover:bg-[#FA52A8]/5"
+          className="mt-auto w-full rounded-lg border border-[#FA52A8] py-1.5 text-sm font-medium text-[#FA52A8] transition hover:bg-[#FA52A8]/5"
         >
           Tambah
         </button>
