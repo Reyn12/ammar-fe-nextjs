@@ -8,11 +8,14 @@ export function HomePage() {
   return (
     <div className="flex flex-1 flex-col">
       <HomeHeader
-        onClickSearch={() =>
-          gooeyToast.info("Fitur Search Coming Soon!")
-        }
+        nameStore="RM Ayam Bakar Ammar – Bandung Kota"
+        openHours="Buka hari ini, 00:00-23:59"
+        onClickSearch={() => gooeyToast.info("Fitur Search Coming Soon!")}
         onClickHumburger={() =>
           gooeyToast.info("Fitur Sidebar Coming Soon!")
+        }
+        onClickDetail={() =>
+          gooeyToast.info("Fitur Detail Toko Coming Soon!")
         }
       />
 
