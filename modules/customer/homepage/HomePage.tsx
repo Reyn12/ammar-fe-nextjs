@@ -14,6 +14,7 @@ import type { OrderType } from "@/modules/customer/homepage/types/order";
 import { cn } from "@/shared/lib/cn";
 
 import { HomeCategoryTabs } from "./components/HomeCategoryTabs";
+import { HomeCheckoutBar } from "./components/HomeCheckoutBar";
 import { HomeHeader } from "./components/HomeHeader";
 import { HomeMenuListBuilder } from "./components/HomeMenuListBuilder";
 import { HomeOrderTypeCard } from "./components/HomeOrderTypeCard";
@@ -31,25 +32,22 @@ export function HomePage() {
     [activeCategoryId],
   );
 
-  const nameStore = "RM Ayam Bakar Ammar – Bandung Kota";
-  const tableNumber = 10;
-
   const handleClickSearch = () => gooeyToast.info("Fitur Search Coming Soon!");
 
   return (
     <div className="flex flex-1 flex-col">
       <HomeHeader
-        nameStore={nameStore}
+        nameStore="RM Ayam Bakar Ammar – Bandung Kota"
         openHours="Buka hari ini, 00:00-23:59"
         onClickSearch={handleClickSearch}
         onClickHumburger={() => gooeyToast.info("Fitur Sidebar Coming Soon!")}
         onClickDetail={() => gooeyToast.info("Fitur Detail Toko Coming Soon!")}
       />
 
-      <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-6">
+      <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-24">
         <HomeOrderTypeCard
           orderType={orderType}
-          tableNumber={tableNumber}
+          tableNumber="10"
           onClickOrderType={() =>
             gooeyToast.info("Fitur Pilih Tipe Pemesanan Coming Soon!")
           }
@@ -71,9 +69,9 @@ export function HomePage() {
           >
             <div className="overflow-hidden">
               <HomeStickyNavbar
-                nameStore={nameStore}
+                nameStore="RM Ayam Bakar Ammar – Bandung Kota"
                 orderType={orderType}
-                tableNumber={tableNumber}
+                tableNumber="10"
                 onClickSearch={handleClickSearch}
               />
             </div>
@@ -95,6 +93,12 @@ export function HomePage() {
           }
         />
       </main>
+
+      <HomeCheckoutBar
+        itemCount={1}
+        total={125_000}
+        onClick={() => gooeyToast.info("Fitur Checkout Coming Soon!")}
+      />
     </div>
   );
 }
