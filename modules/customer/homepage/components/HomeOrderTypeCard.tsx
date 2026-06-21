@@ -1,7 +1,7 @@
 import {
   ORDER_TYPE_LABEL,
   type OrderType,
-} from "@/modules/customer/domain/types/order";
+} from "@/modules/customer/homepage/types/order";
 
 type HomeOrderTypeCardProps = {
   orderType: OrderType;

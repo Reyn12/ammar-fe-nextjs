@@ -1,4 +1,4 @@
-import type { MenuCategory } from "@/modules/customer/domain/constants/menu-categories";
+import type { MenuCategory } from "@/modules/customer/homepage/constants/menu-categories";
 import { cn } from "@/shared/lib/cn";
 
 type HomeCategoryTabsProps = {

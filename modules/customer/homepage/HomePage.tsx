@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { gooeyToast } from "goey-toast";
 
-import type { OrderType } from "@/modules/customer/domain/types/order";
-import { HOME_MENU_CATEGORIES } from "@/modules/customer/domain/constants/menu-categories";
+import { HOME_MENU_CATEGORIES } from "@/modules/customer/homepage/constants/menu-categories";
+import type { OrderType } from "@/modules/customer/homepage/types/order";
 
-import { HomeCategoryTabs } from "../components/HomeCategoryTabs";
-import { HomeHeader } from "../components/HomeHeader";
-import { HomeOrderTypeCard } from "../components/HomeOrderTypeCard";
+import { HomeCategoryTabs } from "./components/HomeCategoryTabs";
+import { HomeHeader } from "./components/HomeHeader";
+import { HomeOrderTypeCard } from "./components/HomeOrderTypeCard";
 
 export function HomePage() {
   const [orderType] = useState<OrderType>("dine-in");
@@ -18,7 +18,6 @@ export function HomePage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Header Section */}
       <HomeHeader
         nameStore="RM Ayam Bakar Ammar – Bandung Kota"
         openHours="Buka hari ini, 00:00-23:59"
@@ -31,9 +30,7 @@ export function HomePage() {
         }
       />
 
-      <main className="flex flex-1 flex-col gap-4 px-4 pb-6 mt-4">
-
-        {/* Order Type Card */}
+      <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-6">
         <HomeOrderTypeCard
           orderType={orderType}
           tableNumber={10}
@@ -42,7 +39,6 @@ export function HomePage() {
           }
         />
 
-        {/* Tab Menu Kategori Food */}  
         <HomeCategoryTabs
           categories={HOME_MENU_CATEGORIES}
           activeCategoryId={activeCategoryId}
