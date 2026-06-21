@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { gooeyToast } from "goey-toast";
 
 import {
-  HOME_MENU_ALL_CATEGORY_ID,
   HOME_MENU_CATEGORIES,
 } from "@/modules/customer/homepage/constants/menu-categories";
 import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
@@ -18,20 +17,21 @@ import { HomeCheckoutBar } from "./components/HomeCheckoutBar";
 import { HomeHeader } from "./components/HomeHeader";
 import { HomeMenuListBuilder } from "./components/HomeMenuListBuilder";
 import { HomeOrderTypeCard } from "./components/HomeOrderTypeCard";
+import { HomeSidebar } from "./components/HomeSidebar";
 import { HomeStickyNavbar } from "./components/HomeStickyNavbar";
 
 export function HomePage() {
   const [orderType] = useState<OrderType>("dine-in");
   const [activeCategoryId, setActiveCategoryId] = useState(
-    HOME_MENU_ALL_CATEGORY_ID,
+    "semua",
   );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
 
   const filteredSections = useMemo(
     () => filterMenuSectionsByCategory(HOME_MENU_SECTIONS, activeCategoryId),
     [activeCategoryId],
-  );
-
+  )
   const handleClickSearch = () => gooeyToast.info("Fitur Search Coming Soon!");
 
   return (
@@ -40,7 +40,7 @@ export function HomePage() {
         nameStore="RM Ayam Bakar Ammar – Bandung Kota"
         openHours="Buka hari ini, 00:00-23:59"
         onClickSearch={handleClickSearch}
-        onClickHumburger={() => gooeyToast.info("Fitur Sidebar Coming Soon!")}
+        onClickHumburger={() => setIsSidebarOpen(true)}
         onClickDetail={() => gooeyToast.info("Fitur Detail Toko Coming Soon!")}
       />
 
@@ -98,6 +98,15 @@ export function HomePage() {
         itemCount={1}
         total={125_000}
         onClick={() => gooeyToast.info("Fitur Checkout Coming Soon!")}
+      />
+
+      <HomeSidebar
+        isOpen={isSidebarOpen}
+        nameStore="RM Ayam Bakar Ammar – Bandung Kota"
+        onClose={() => setIsSidebarOpen(false)}
+        onClickOrderHistory={() =>
+          gooeyToast.info("Fitur Riwayat Pesanan Coming Soon!")
+        }
       />
     </div>
   );

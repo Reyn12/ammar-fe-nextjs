@@ -3,10 +3,8 @@ export type MenuCategory = {
   label: string;
 };
 
-export const HOME_MENU_ALL_CATEGORY_ID = "semua";
-
 export const HOME_MENU_CATEGORIES: MenuCategory[] = [
-  { id: HOME_MENU_ALL_CATEGORY_ID, label: "SEMUA" },
+  { id: "semua", label: "SEMUA" },
   { id: "paket-hemat", label: "MENU PAKET HEMAT" },
   { id: "makanan", label: "MAKANAN" },
   { id: "ikan-lauk", label: "IKAN & LAUK UTAMA" },
