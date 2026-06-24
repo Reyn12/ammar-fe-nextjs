@@ -1,5 +1,90 @@
-import { createMenuSection } from "@/modules/customer/homepage/lib/create-menu-item";
+import {
+  createMenuItem,
+  createMenuSection,
+} from "@/modules/customer/homepage/lib/create-menu-item";
 import type { MenuSection } from "@/modules/customer/homepage/types/menu-section";
+
+/** Contoh menu yang buka bottom sheet variant/addon */
+export const CONFIGURABLE_MENU_ITEM = createMenuItem(
+  "menu-ikan-lauk",
+  "Ayam Bakar / Goreng 1 Potong",
+  28_000,
+  {
+    kind: "configurable",
+    customization: {
+      variantGroups: [
+        {
+          id: "tipe-ayam",
+          label: "Tipe Ayam",
+          required: true,
+          choices: [
+            { id: "bakar", label: "Bakar", priceDelta: 0 },
+            { id: "goreng", label: "Goreng", priceDelta: 0 },
+          ],
+        },
+        {
+          id: "level-pedas",
+          label: "Level Pedas",
+          required: true,
+          choices: [
+            { id: "lv-0", label: "Lv 0", priceDelta: 0 },
+            { id: "lv-1", label: "Lv 1", priceDelta: 2_000 },
+            { id: "lv-2", label: "Lv 2", priceDelta: 3_000 },
+          ],
+        },
+      ],
+      addonGroups: [
+        {
+          id: "tambahan",
+          label: "Tambahan",
+          choices: [
+            { id: "extra-sambal", label: "Extra Sambal", priceDelta: 3_000 },
+            { id: "extra-lalapan", label: "Extra Lalapan", priceDelta: 5_000 },
+            { id: "extra-nasi", label: "Extra Nasi", priceDelta: 5_000 },
+          ],
+        },
+      ],
+    },
+  },
+);
+
+const ikanLaukSection = createMenuSection("menu-ikan-lauk", "MENU IKAN & LAUK UTAMA", [
+  "Ayam Bakar / Goreng 1 Potong",
+  "Ayam Bakar / Goreng 1 Ekor",
+  "Ayam Saus Tiram",
+  "Ayam Saus Padang",
+  "Ayam Asam Manis",
+  "Ayam Hot Plate",
+  "Ayam Pecak",
+  "Cumi Goreng Tepung",
+  "Cumi Saus Tiram",
+  "Cumi Saus Padang",
+  "Cumi Asam Manis",
+  "Cumi Hot Plate",
+  "Udang Goreng Tepung",
+  "Udang Saus Tiram",
+  "Udang Saus Padang",
+  "Udang Asam Manis",
+  "Udang Hot Plate",
+  "Gurame Bakar",
+  "Gurame Goreng",
+  "Gurame Pecak",
+  "Gurame Saos Tiram",
+  "Gurame Saos Padang",
+  "Gurame Asam Manis",
+  "Pecak Bandeng",
+  "Sop Iga",
+  "Iga Bakar",
+  "Pepes Peda",
+  "Tumis Peda",
+]);
+
+const ikanLaukWithConfigurableItem: MenuSection = {
+  ...ikanLaukSection,
+  items: ikanLaukSection.items.map((item) =>
+    item.id === CONFIGURABLE_MENU_ITEM.id ? CONFIGURABLE_MENU_ITEM : item,
+  ),
+};
 
 export const HOME_MENU_SECTIONS: MenuSection[] = [
   createMenuSection("menu-makanan", "MENU MAKANAN", [
@@ -27,36 +112,7 @@ export const HOME_MENU_SECTIONS: MenuSection[] = [
     "Jamur Crispy",
     "Karedok",
   ]),
-  createMenuSection("menu-ikan-lauk", "MENU IKAN & LAUK UTAMA", [
-    "Ayam Bakar / Goreng 1 Potong",
-    "Ayam Bakar / Goreng 1 Ekor",
-    "Ayam Saus Tiram",
-    "Ayam Saus Padang",
-    "Ayam Asam Manis",
-    "Ayam Hot Plate",
-    "Ayam Pecak",
-    "Cumi Goreng Tepung",
-    "Cumi Saus Tiram",
-    "Cumi Saus Padang",
-    "Cumi Asam Manis",
-    "Cumi Hot Plate",
-    "Udang Goreng Tepung",
-    "Udang Saus Tiram",
-    "Udang Saus Padang",
-    "Udang Asam Manis",
-    "Udang Hot Plate",
-    "Gurame Bakar",
-    "Gurame Goreng",
-    "Gurame Pecak",
-    "Gurame Saos Tiram",
-    "Gurame Saos Padang",
-    "Gurame Asam Manis",
-    "Pecak Bandeng",
-    "Sop Iga",
-    "Iga Bakar",
-    "Pepes Peda",
-    "Tumis Peda",
-  ]),
+  ikanLaukWithConfigurableItem,
   createMenuSection("menu-cemilan", "MENU CEMILAN", [
     "Kerupuk",
     "Kentang Goreng",

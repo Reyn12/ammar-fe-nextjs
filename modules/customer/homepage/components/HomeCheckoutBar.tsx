@@ -26,6 +26,8 @@ export function HomeCheckoutBar({
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  if (itemCount <= 0) return null;
+
   return (
     <div
       className={cn(

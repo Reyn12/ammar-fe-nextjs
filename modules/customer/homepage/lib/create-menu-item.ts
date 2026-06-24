@@ -16,12 +16,15 @@ export function createMenuItem(
   sectionId: string,
   name: string,
   price = DEFAULT_PRICE,
+  overrides: Partial<Pick<MenuItem, "kind" | "customization">> = {},
 ): MenuItem {
   return {
     id: toItemId(sectionId, name),
     imageUrl: DEFAULT_IMAGE,
     name: name.toUpperCase(),
     price,
+    kind: overrides.kind ?? "simple",
+    customization: overrides.customization,
   };
 }
 

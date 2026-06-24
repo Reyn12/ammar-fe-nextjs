@@ -2,19 +2,29 @@ import Image from "next/image";
 
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
 
+import { HomeMenuQuantityStepper } from "./HomeMenuQuantityStepper";
+
 type HomeMenuListItemProps = {
   imageUrl: string;
   name: string;
   price: number;
+  quantity: number;
   onAdd: () => void;
+  onIncrement: () => void;
+  onDecrement: () => void;
 };
 
 export function HomeMenuListItem({
   imageUrl,
   name,
   price,
+  quantity,
   onAdd,
+  onIncrement,
+  onDecrement,
 }: HomeMenuListItemProps) {
+  const isInCart = quantity > 0;
+
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
       <div className="relative aspect-[242/208] w-full">
@@ -33,13 +43,23 @@ export function HomeMenuListItem({
           {formatMenuPrice(price)}
         </p>
 
-        <button
-          type="button"
-          onClick={onAdd}
-          className="mt-auto w-full rounded-lg border border-[#FA52A8] py-1.5 text-sm font-medium text-[#FA52A8] transition hover:bg-[#FA52A8]/5"
-        >
-          Tambah
-        </button>
+        {isInCart ? (
+          <HomeMenuQuantityStepper
+            quantity={quantity}
+            itemName={name}
+            onDecrement={onDecrement}
+            onIncrement={onIncrement}
+            className="mt-auto flex items-center justify-center gap-4 py-1"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="mt-auto w-full rounded-lg border border-[#FA52A8] py-1.5 text-sm font-medium text-[#FA52A8] transition hover:bg-[#FA52A8]/5"
+          >
+            Tambah
+          </button>
+        )}
       </div>
     </article>
   );

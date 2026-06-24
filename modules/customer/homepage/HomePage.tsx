@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { gooeyToast } from "goey-toast";
+import { useRouter } from "next/navigation";
 
 import {
   HOME_MENU_CATEGORIES,
 } from "@/modules/customer/homepage/constants/menu-categories";
 import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
+import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
+import { useCart } from "@/modules/customer/homepage/lib/use-cart";
 import { filterMenuSectionsByCategory } from "@/modules/customer/homepage/lib/filter-menu-sections-by-category";
 import { useShowWhenScrolledPast } from "@/modules/customer/homepage/lib/use-show-when-scrolled-past";
 import type { OrderType } from "@/modules/customer/homepage/types/order";
@@ -22,19 +25,50 @@ import { HomeSidebar } from "./components/HomeSidebar";
 import { HomeStickyNavbar } from "./components/HomeStickyNavbar";
 
 export function HomePage() {
+  const router = useRouter();
   const [orderType, setOrderType] = useState<OrderType>("dine-in");
   const [activeCategoryId, setActiveCategoryId] = useState(
     "semua",
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
+  const { summary, getQuantity, addItem, incrementItem, decrementItem } =
+    useCart();
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
 
   const filteredSections = useMemo(
     () => filterMenuSectionsByCategory(HOME_MENU_SECTIONS, activeCategoryId),
     [activeCategoryId],
-  )
-  const handleClickSearch = () => gooeyToast.info("Fitur Search Coming Soon!");
+  );
+  const handleClickSearch = () => router.push("/search");
+
+  const handleAddItem = (itemId: string) => {
+    const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
+    if (!item) return;
+
+    if (item.kind === "configurable") {
+      gooeyToast.info("Fitur Detail Menu Coming Soon!");
+      return;
+    }
+
+    addItem(item);
+  };
+
+  const handleIncrementItem = (itemId: string) => {
+    const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
+    if (!item) return;
+
+    if (item.kind === "configurable") {
+      gooeyToast.info("Fitur Detail Menu Coming Soon!");
+      return;
+    }
+
+    incrementItem(item);
+  };
+
+  const handleDecrementItem = (itemId: string) => {
+    decrementItem(itemId);
+  };
 
   return (
     <div className="flex flex-1 flex-col">
@@ -88,15 +122,16 @@ export function HomePage() {
 
         <HomeMenuListBuilder
           sections={filteredSections}
-          onAddItem={() =>
-            gooeyToast.info("Fitur Tambah Menu Coming Soon!")
-          }
+          getQuantity={getQuantity}
+          onAddItem={handleAddItem}
+          onIncrementItem={handleIncrementItem}
+          onDecrementItem={handleDecrementItem}
         />
       </main>
 
       <HomeCheckoutBar
-        itemCount={1}
-        total={125_000}
+        itemCount={summary.itemCount}
+        total={summary.total}
         onClick={() => gooeyToast.info("Fitur Checkout Coming Soon!")}
       />
 
