@@ -11,7 +11,7 @@ export function CustomerShell({ children, className }: CustomerShellProps) {
     <div className="flex min-h-dvh justify-center bg-zinc-100">
       <div
         className={cn(
-          "flex w-full min-h-dvh flex-col bg-white shadow-xl",
+          "relative flex w-full min-h-dvh flex-col bg-white shadow-xl",
           className,
         )}
         style={{ maxWidth: CUSTOMER_MAX_WIDTH }}

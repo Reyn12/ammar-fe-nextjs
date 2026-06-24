@@ -20,3 +20,9 @@ lint: ## Cek lint
 
 clean: ## Hapus folder build (.next)
 	rm -rf .next
+
+fetch-main:
+	git fetch
+	git checkout main
+	git pull
+
