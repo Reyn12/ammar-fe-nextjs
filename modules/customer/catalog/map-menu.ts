@@ -19,7 +19,9 @@ function toAssetUrl(imageUrl: string | null) {
 
   try {
     const { pathname } = new URL(imageUrl, "http://placeholder.local");
-    return pathname.startsWith("/images/") ? `/be-assets${pathname}` : imageUrl;
+    return pathname.startsWith("/images/") || pathname.startsWith("/storage/")
+      ? `/be-assets${pathname}`
+      : imageUrl;
   } catch {
     return FALLBACK_IMAGE;
   }
