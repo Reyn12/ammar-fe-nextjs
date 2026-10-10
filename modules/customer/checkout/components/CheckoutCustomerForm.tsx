@@ -64,7 +64,7 @@ export function CheckoutCustomerForm({
           }}
         />
         <Field
-          label="No. telepon"
+          label="No. WhatsApp"
           required
           error={errors.phone}
           inputProps={{
@@ -75,18 +75,6 @@ export function CheckoutCustomerForm({
             value: value.phone,
             onChange: (event) =>
               onChange({ ...value, phone: event.target.value }),
-          }}
-        />
-        <Field
-          label="Email"
-          error={errors.email}
-          inputProps={{
-            type: "email",
-            autoComplete: "email",
-            placeholder: "nama@email.com",
-            value: value.email,
-            onChange: (event) =>
-              onChange({ ...value, email: event.target.value }),
           }}
         />
       </div>

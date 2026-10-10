@@ -120,10 +120,10 @@ export function PaymentSuccess({
 
       <div className="w-full rounded-2xl bg-[#FA52A8]/5 p-4 ring-1 ring-[#FA52A8]/10">
         <p className="text-sm font-semibold text-zinc-900">
-          Bukti transaksi sudah dikirim
+          Struk pesanan dikirim ke WhatsApp
         </p>
         <p className="mt-0.5 text-xs text-zinc-600">
-          Cek pesan masuk untuk detail pesanan dan bukti transaksi.
+          Detail pesanan dan bukti pembayaran dikirim ke nomor ini.
         </p>
         {contact && (
         <ul className="mt-3 flex flex-col gap-3">
@@ -136,18 +136,6 @@ export function PaymentSuccess({
             title="WhatsApp"
             target={contact.customerPhone}
           />
-          {contact.customerEmail && (
-            <NotifyRow
-              icon={
-                <SvgIcon className="h-5 w-5">
-                  <rect x="3" y="5" width="18" height="14" rx="2" />
-                  <path d="m3 7 9 6 9-6" />
-                </SvgIcon>
-              }
-              title="Email"
-              target={contact.customerEmail}
-            />
-          )}
         </ul>
         )}
       </div>
