@@ -24,8 +24,10 @@ export function useCart() {
   );
 
   const addItem = useCallback(
-    (item: MenuItem, selection?: CartSelection) => {
-      setCart((current) => addMenuItemToCart(current, item, selection));
+    (item: MenuItem, selection?: CartSelection, quantity = 1) => {
+      setCart((current) =>
+        addMenuItemToCart(current, item, selection, quantity),
+      );
     },
     [],
   );

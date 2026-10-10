@@ -82,6 +82,7 @@ export function addMenuItemToCart(
   cart: CartState,
   item: MenuItem,
   selection: CartSelection = EMPTY_CART_SELECTION,
+  quantityToAdd = 1,
 ): CartState {
   const lineKey = buildCartLineKey(item.id, selection);
   const existingLine = cart.lines[lineKey];
@@ -89,7 +90,7 @@ export function addMenuItemToCart(
   const nextLine: CartLineItem = {
     lineKey,
     menuItemId: item.id,
-    quantity: (existingLine?.quantity ?? 0) + 1,
+    quantity: (existingLine?.quantity ?? 0) + quantityToAdd,
     selection,
     unitPrice: calculateCartUnitPrice(item, selection),
   };

@@ -13,11 +13,14 @@ import { useCart } from "@/modules/customer/homepage/lib/use-cart";
 import { filterMenuSectionsByCategory } from "@/modules/customer/homepage/lib/filter-menu-sections-by-category";
 import { useShowWhenScrolledPast } from "@/modules/customer/homepage/lib/use-show-when-scrolled-past";
 import type { OrderType } from "@/modules/customer/homepage/types/order";
+import type { MenuItem } from "@/modules/customer/homepage/types/menu-item";
+import type { CartSelection } from "@/modules/customer/homepage/types/cart";
 import { cn } from "@/shared/lib/cn";
 
 import { HomeCategoryTabs } from "./components/HomeCategoryTabs";
 import { HomeCheckoutBar } from "./components/HomeCheckoutBar";
 import { HomeHeader } from "./components/HomeHeader";
+import { HomeMenuDetailBottomSheet } from "./components/HomeMenuDetailBottomSheet";
 import { HomeMenuListBuilder } from "./components/HomeMenuListBuilder";
 import { HomeOrderTypeBottomSheet } from "./components/HomeOrderTypeBottomSheet";
 import { HomeOrderTypeCard } from "./components/HomeOrderTypeCard";
@@ -32,6 +35,7 @@ export function HomePage() {
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
+  const [menuDetailItem, setMenuDetailItem] = useState<MenuItem | null>(null);
   const { summary, getQuantity, addItem, incrementItem, decrementItem } =
     useCart();
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
@@ -42,12 +46,15 @@ export function HomePage() {
   );
   const handleClickSearch = () => router.push("/search");
 
+  const openMenuDetail = (item: MenuItem) => setMenuDetailItem(item);
+  const closeMenuDetail = () => setMenuDetailItem(null);
+
   const handleAddItem = (itemId: string) => {
     const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
     if (!item) return;
 
     if (item.kind === "configurable") {
-      gooeyToast.info("Fitur Detail Menu Coming Soon!");
+      openMenuDetail(item);
       return;
     }
 
@@ -59,11 +66,22 @@ export function HomePage() {
     if (!item) return;
 
     if (item.kind === "configurable") {
-      gooeyToast.info("Fitur Detail Menu Coming Soon!");
+      openMenuDetail(item);
       return;
     }
 
     incrementItem(item);
+  };
+
+  const handleConfirmMenuDetail = (
+    selection: CartSelection,
+    quantity: number,
+  ) => {
+    if (!menuDetailItem) return;
+
+    addItem(menuDetailItem, selection, quantity);
+    closeMenuDetail();
+    gooeyToast.success(`${menuDetailItem.name} ditambahkan ke keranjang`);
   };
 
   const handleDecrementItem = (itemId: string) => {
@@ -139,9 +157,7 @@ export function HomePage() {
         isOpen={isSidebarOpen}
         nameStore="RM Ayam Bakar Ammar – Bandung Kota"
         onClose={() => setIsSidebarOpen(false)}
-        onClickOrderHistory={() =>
-          gooeyToast.info("Fitur Riwayat Pesanan Coming Soon!")
-        }
+        onClickOrderHistory={() => router.push("/order-history")}
       />
 
       <HomeOrderTypeBottomSheet
@@ -149,6 +165,13 @@ export function HomePage() {
         value={orderType}
         onClose={() => setIsOrderTypeSheetOpen(false)}
         onChange={setOrderType}
+      />
+
+      <HomeMenuDetailBottomSheet
+        item={menuDetailItem}
+        isOpen={menuDetailItem !== null}
+        onClose={closeMenuDetail}
+        onConfirm={handleConfirmMenuDetail}
       />
     </div>
   );
