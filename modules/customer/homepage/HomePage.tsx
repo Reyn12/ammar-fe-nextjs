@@ -4,9 +4,7 @@ import { useMemo, useState } from "react";
 import { gooeyToast } from "goey-toast";
 import { useRouter } from "next/navigation";
 
-import {
-  HOME_MENU_CATEGORIES,
-} from "@/modules/customer/homepage/constants/menu-categories";
+import { HOME_MENU_CATEGORIES } from "@/modules/customer/homepage/constants/menu-categories";
 import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
 import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
 import { useCart } from "@/modules/customer/homepage/lib/use-cart";
@@ -30,9 +28,7 @@ import { HomeStickyNavbar } from "./components/HomeStickyNavbar";
 export function HomePage() {
   const router = useRouter();
   const [orderType, setOrderType] = useState<OrderType>("dine-in");
-  const [activeCategoryId, setActiveCategoryId] = useState(
-    "semua",
-  );
+  const [activeCategoryId, setActiveCategoryId] = useState("semua");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
   const [menuDetailItem, setMenuDetailItem] = useState<MenuItem | null>(null);
@@ -95,7 +91,7 @@ export function HomePage() {
         openHours="Buka hari ini, 00:00-23:59"
         onClickSearch={handleClickSearch}
         onClickHumburger={() => setIsSidebarOpen(true)}
-        onClickDetail={() => gooeyToast.info("Fitur Detail Toko Coming Soon!")}
+        onClickDetail={() => router.push("/store-detail")}
       />
 
       <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-24">
