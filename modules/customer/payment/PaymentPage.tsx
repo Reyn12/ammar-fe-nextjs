@@ -7,7 +7,9 @@ import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
 import { PAYMENT_METHOD_LABEL } from "@/modules/customer/homepage/types/payment";
 
+import { PaymentCashWaiting } from "./components/PaymentCashWaiting";
 import { PaymentQrCode } from "./components/PaymentQrCode";
+import { PaymentSuccess } from "./components/PaymentSuccess";
 
 function formatCountdown(ms: number) {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -29,9 +31,7 @@ export function PaymentPage() {
   if (!placedOrder) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm font-semibold text-zinc-900">
-          Belum ada pesanan
-        </p>
+        <p className="text-sm font-semibold text-zinc-900">Belum ada pesanan</p>
         <button
           type="button"
           onClick={() => router.replace("/")}
@@ -67,79 +67,46 @@ export function PaymentPage() {
       </header>
 
       <main className="flex flex-1 flex-col items-center gap-4 px-4 py-6">
-        <div className="w-full rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-zinc-100">
-          <p className="text-xs text-zinc-500">{PAYMENT_METHOD_LABEL[placedOrder.paymentMethod]}</p>
-          <h2 className="mt-1 text-lg font-bold text-zinc-900">{title}</h2>
-          <p className="mt-1 text-2xl font-bold text-[#FA52A8]">
-            {formatMenuPrice(placedOrder.total)}
-          </p>
-          <p className="mt-1 text-xs text-zinc-500">
-            Atas nama {placedOrder.customerName}
-            {placedOrder.tableNumber !== null &&
-              ` · Meja ${placedOrder.tableNumber}`}
-          </p>
-
-          {!isPaid && !isExpired && isQris && (
-            <>
-              <div className="mt-4 flex justify-center">
-                <PaymentQrCode value={placedOrder.code} />
-              </div>
-              <p className="mt-3 text-sm text-zinc-600">
-                Bayar dalam{" "}
-                <span className="font-semibold text-zinc-900">
-                  {formatCountdown(remainingMs)}
-                </span>
-              </p>
-            </>
-          )}
-
-          {!isPaid && !isExpired && !isQris && (
-            <div className="mt-4 rounded-xl bg-zinc-50 py-4">
-              <p className="text-xs text-zinc-500">Kode pesanan</p>
-              <p className="mt-1 text-xl font-bold tracking-wider text-zinc-900">
-                {placedOrder.code}
-              </p>
-              <p className="mt-2 px-4 text-sm text-zinc-600">
-                Tunjukkan kode ini ke kasir lalu bayar sesuai total di atas.
-              </p>
-            </div>
-          )}
-
-          {isPaid && (
-            <>
-              <p className="mt-4 text-sm text-zinc-600">
-                Pesananmu{" "}
-                <span className="font-semibold">{placedOrder.code}</span> sudah
-                dibayar dan sedang diproses.
-              </p>
-              <div className="mt-4 rounded-xl bg-[#FA52A8]/5 p-3 text-left text-sm text-zinc-700">
-                <p className="font-semibold text-zinc-900">
-                  Cek WhatsApp{placedOrder.customerEmail && " dan email"} kamu
-                </p>
-                <p className="mt-1 text-xs text-zinc-600">
-                  Detail pesanan dan bukti transaksi dikirim ke WhatsApp{" "}
-                  <span className="font-medium">{placedOrder.customerPhone}</span>
-                  {placedOrder.customerEmail && (
-                    <>
-                      {" "}
-                      dan email{" "}
-                      <span className="font-medium">
-                        {placedOrder.customerEmail}
-                      </span>
-                    </>
-                  )}
-                  .
-                </p>
-              </div>
-            </>
-          )}
-
-          {isExpired && (
-            <p className="mt-4 text-sm text-zinc-600">
-              Waktu pembayaran habis. Silakan buat pesanan lagi.
+        {isPaid ? (
+          <PaymentSuccess order={placedOrder} />
+        ) : !isQris && !isExpired ? (
+          <PaymentCashWaiting order={placedOrder} />
+        ) : (
+          <div className="w-full rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-zinc-100">
+            <p className="text-xs text-zinc-500">
+              {PAYMENT_METHOD_LABEL[placedOrder.paymentMethod]}
             </p>
-          )}
-        </div>
+            <h2 className="mt-1 text-lg font-bold text-zinc-900">{title}</h2>
+            <p className="mt-1 text-2xl font-bold text-[#FA52A8]">
+              {formatMenuPrice(placedOrder.total)}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              Atas nama {placedOrder.customerName}
+              {placedOrder.tableNumber !== null &&
+                ` · Meja ${placedOrder.tableNumber}`}
+            </p>
+
+            {!isPaid && !isExpired && isQris && (
+              <>
+                <div className="mt-4 flex justify-center">
+                  <PaymentQrCode value={placedOrder.code} />
+                </div>
+                <p className="mt-3 text-sm text-zinc-600">
+                  Bayar dalam{" "}
+                  <span className="font-semibold text-zinc-900">
+                    {formatCountdown(remainingMs)}
+                  </span>
+                </p>
+              </>
+            )}
+
+            {isExpired && (
+              <p className="mt-4 text-sm text-zinc-600">
+                Waktu pembayaran habis. Silakan buat pesanan lagi.
+              </p>
+            )}
+          </div>
+        )}
 
         {!isPaid && !isExpired && (
           <button
