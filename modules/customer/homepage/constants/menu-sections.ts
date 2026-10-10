@@ -2,6 +2,11 @@ import {
   createMenuItem,
   createMenuSection,
 } from "@/modules/customer/homepage/lib/create-menu-item";
+import type {
+  MenuAddonGroup,
+  MenuCustomization,
+  MenuVariantGroup,
+} from "@/modules/customer/homepage/types/menu-customization";
 import type { MenuSection } from "@/modules/customer/homepage/types/menu-section";
 
 /** Contoh menu yang buka bottom sheet variant/addon */
@@ -86,6 +91,114 @@ const ikanLaukWithConfigurableItem: MenuSection = {
   ),
 };
 
+const PLAIN_DRINKS = ["air mineral", "teh botol", "es batu kristal"];
+
+const SUGAR_LEVEL_GROUP: MenuVariantGroup = {
+  id: "level-gula",
+  label: "Level Gula",
+  required: true,
+  choices: [
+    { id: "normal", label: "Normal", priceDelta: 0 },
+    { id: "less", label: "Less Sugar", priceDelta: 0 },
+    { id: "no-sugar", label: "Tanpa Gula", priceDelta: 0 },
+  ],
+};
+
+const ICE_LEVEL_GROUP: MenuVariantGroup = {
+  id: "level-es",
+  label: "Level Es",
+  required: true,
+  choices: [
+    { id: "normal", label: "Normal", priceDelta: 0 },
+    { id: "sedikit", label: "Sedikit Es", priceDelta: 0 },
+    { id: "tanpa", label: "Tanpa Es", priceDelta: 0 },
+  ],
+};
+
+const SERVING_GROUP: MenuVariantGroup = {
+  id: "penyajian",
+  label: "Penyajian",
+  required: true,
+  choices: [
+    { id: "es", label: "Es", priceDelta: 0 },
+    { id: "hangat", label: "Hangat", priceDelta: 0 },
+  ],
+};
+
+const EXTRA_MILK_ADDON: MenuAddonGroup = {
+  id: "tambahan",
+  label: "Tambahan",
+  choices: [{ id: "extra-susu", label: "Extra Susu", priceDelta: 3_000 }],
+};
+
+function getDrinkCustomization(itemName: string): MenuCustomization | undefined {
+  const name = itemName.toLowerCase();
+  if (PLAIN_DRINKS.includes(name)) return undefined;
+
+  const isHot = /hangat|panas/i.test(name);
+  const isCoffee = /kopi|coffee|indocafe/i.test(name);
+
+  if (isHot) {
+    return {
+      variantGroups: [SUGAR_LEVEL_GROUP],
+      addonGroups: isCoffee ? [EXTRA_MILK_ADDON] : [],
+    };
+  }
+
+  if (isCoffee && !name.startsWith("es ")) {
+    return {
+      variantGroups: [SERVING_GROUP, SUGAR_LEVEL_GROUP],
+      addonGroups: [EXTRA_MILK_ADDON],
+    };
+  }
+
+  return {
+    variantGroups: [ICE_LEVEL_GROUP, SUGAR_LEVEL_GROUP],
+    addonGroups: isCoffee ? [EXTRA_MILK_ADDON] : [],
+  };
+}
+
+const minumanSection = createMenuSection("menu-minuman", "MENU MINUMAN", [
+    "Air Mineral",
+    "Es Gaul",
+    "Es Kuwut Timun",
+    "Es Melger",
+    "Es Jeruk",
+    "Es Teh Manis",
+    "Es Teh Tawar",
+    "Teh Manis Hangat",
+    "Teh Tawar Hangat",
+    "Es Lemon Tea",
+    "Lemon Tea Hangat",
+    "Es Batu Kristal",
+    "Es Coffee",
+    "Es Moccacino",
+    "Es Chocolatos",
+    "Es Susu",
+    "Indocafe",
+    "Luwak Coffee",
+    "Kopi Hitam",
+    "Kopi Good Day",
+    "Jus Alpukat",
+    "Jus Strawberry",
+    "Jus Melon",
+    "Jus Jambu Biji",
+    "Jus Apel",
+    "Jus Buah Naga",
+    "Susu Panas",
+    "Teh Botol",
+  ]);
+
+const minumanWithCustomization: MenuSection = {
+  ...minumanSection,
+  items: minumanSection.items.map((item) => {
+    const customization = getDrinkCustomization(item.name);
+    return customization
+      ? { ...item, kind: "configurable", customization }
+      : item;
+  }),
+};
+
 export const HOME_MENU_SECTIONS: MenuSection[] = [
   createMenuSection("menu-makanan", "MENU MAKANAN", [
     "Nasi Putih Porsi",
@@ -125,36 +238,7 @@ export const HOME_MENU_SECTIONS: MenuSection[] = [
     "Indomie",
     "Indomie + Telor",
   ]),
-  createMenuSection("menu-minuman", "MENU MINUMAN", [
-    "Air Mineral",
-    "Es Gaul",
-    "Es Kuwut Timun",
-    "Es Melger",
-    "Es Jeruk",
-    "Es Teh Manis",
-    "Es Teh Tawar",
-    "Teh Manis Hangat",
-    "Teh Tawar Hangat",
-    "Es Lemon Tea",
-    "Lemon Tea Hangat",
-    "Es Batu Kristal",
-    "Es Coffee",
-    "Es Moccacino",
-    "Es Chocolatos",
-    "Es Susu",
-    "Indocafe",
-    "Luwak Coffee",
-    "Kopi Hitam",
-    "Kopi Good Day",
-    "Jus Alpukat",
-    "Jus Strawberry",
-    "Jus Melon",
-    "Jus Jambu Biji",
-    "Jus Apel",
-    "Jus Buah Naga",
-    "Susu Panas",
-    "Teh Botol",
-  ]),
+  minumanWithCustomization,
   createMenuSection("menu-lain", "MENU LAIN", ["Soto Ayam", "Soto Daging"]),
   createMenuSection(
     "menu-paket",

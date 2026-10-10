@@ -27,22 +27,31 @@ export function HomeMenuListItem({
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="relative aspect-[242/208] w-full">
-        <Image
-          src={imageUrl}
-          alt={name}
-          fill
-          sizes="(max-width: 430px) 50vw, 215px"
-          className="object-cover"
-        />
-      </div>
+      <button
+        type="button"
+        onClick={onAdd}
+        aria-label={`Lihat detail ${name}`}
+        className="flex flex-col text-left"
+      >
+        <div className="relative aspect-[242/208] w-full">
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            sizes="(max-width: 430px) 50vw, 215px"
+            className="object-cover"
+          />
+        </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-3">
-        <h3 className="text-xs font-bold leading-4 text-zinc-900">{name}</h3>
-        <p className="text-sm font-bold text-zinc-900">
-          {formatMenuPrice(price)}
-        </p>
+        <div className="flex flex-col gap-2 p-3 pb-0">
+          <h3 className="text-xs font-bold leading-4 text-zinc-900">{name}</h3>
+          <p className="text-sm font-bold text-zinc-900">
+            {formatMenuPrice(price)}
+          </p>
+        </div>
+      </button>
 
+      <div className="flex flex-1 flex-col p-3 pt-2">
         {isInCart ? (
           <HomeMenuQuantityStepper
             quantity={quantity}

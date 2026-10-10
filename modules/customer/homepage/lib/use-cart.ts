@@ -4,6 +4,8 @@ import { useCallback, useMemo, useState } from "react";
 
 import {
   addMenuItemToCart,
+  decrementCartLine,
+  replaceCartLine,
   decrementMenuItemByMenuItemId,
   getCartQuantityByMenuItemId,
   getCartSummary,
@@ -13,7 +15,7 @@ import type { MenuItem } from "@/modules/customer/homepage/types/menu-item";
 
 const INITIAL_CART: CartState = { lines: {} };
 
-export function useCart() {
+export function useCartState() {
   const [cart, setCart] = useState<CartState>(INITIAL_CART);
 
   const summary = useMemo(() => getCartSummary(cart), [cart]);
@@ -40,6 +42,26 @@ export function useCart() {
     setCart((current) => decrementMenuItemByMenuItemId(current, menuItemId));
   }, []);
 
+  const decrementLine = useCallback((lineKey: string) => {
+    setCart((current) => decrementCartLine(current, lineKey));
+  }, []);
+
+  const updateLine = useCallback(
+    (
+      lineKey: string,
+      item: MenuItem,
+      selection: CartSelection,
+      quantity: number,
+    ) => {
+      setCart((current) =>
+        replaceCartLine(current, lineKey, item, selection, quantity),
+      );
+    },
+    [],
+  );
+
+  const clearCart = useCallback(() => setCart(INITIAL_CART), []);
+
   return {
     cart,
     summary,
@@ -47,5 +69,8 @@ export function useCart() {
     addItem,
     incrementItem,
     decrementItem,
+    decrementLine,
+    updateLine,
+    clearCart,
   };
 }

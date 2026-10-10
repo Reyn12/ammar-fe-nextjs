@@ -31,6 +31,7 @@ export function buildCartLineKey(
     menuItemId,
     variants: sortRecord(selection.variants),
     addons: sortAddonRecord(selection.addons),
+    note: selection.note?.trim() ?? "",
   });
 }
 
@@ -136,4 +137,16 @@ export function decrementCartLine(
       },
     },
   };
+}
+
+/** Ganti satu line dengan pilihan baru (digabung kalau kombinasinya sudah ada) */
+export function replaceCartLine(
+  cart: CartState,
+  lineKey: string,
+  item: MenuItem,
+  selection: CartSelection,
+  quantity: number,
+): CartState {
+  const { [lineKey]: _, ...rest } = cart.lines;
+  return addMenuItemToCart({ lines: rest }, item, selection, quantity);
 }

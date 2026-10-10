@@ -7,10 +7,9 @@ import { useRouter } from "next/navigation";
 import { HOME_MENU_CATEGORIES } from "@/modules/customer/homepage/constants/menu-categories";
 import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
 import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
-import { useCart } from "@/modules/customer/homepage/lib/use-cart";
+import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { filterMenuSectionsByCategory } from "@/modules/customer/homepage/lib/filter-menu-sections-by-category";
 import { useShowWhenScrolledPast } from "@/modules/customer/homepage/lib/use-show-when-scrolled-past";
-import type { OrderType } from "@/modules/customer/homepage/types/order";
 import type { MenuItem } from "@/modules/customer/homepage/types/menu-item";
 import type { CartSelection } from "@/modules/customer/homepage/types/cart";
 import { cn } from "@/shared/lib/cn";
@@ -27,13 +26,20 @@ import { HomeStickyNavbar } from "./components/HomeStickyNavbar";
 
 export function HomePage() {
   const router = useRouter();
-  const [orderType, setOrderType] = useState<OrderType>("dine-in");
   const [activeCategoryId, setActiveCategoryId] = useState("semua");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
   const [menuDetailItem, setMenuDetailItem] = useState<MenuItem | null>(null);
-  const { summary, getQuantity, addItem, incrementItem, decrementItem } =
-    useCart();
+  const {
+    summary,
+    getQuantity,
+    addItem,
+    incrementItem,
+    decrementItem,
+    orderType,
+    setOrderType,
+    tableNumber,
+  } = useCartContext();
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
 
   const filteredSections = useMemo(
@@ -49,12 +55,7 @@ export function HomePage() {
     const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
     if (!item) return;
 
-    if (item.kind === "configurable") {
-      openMenuDetail(item);
-      return;
-    }
-
-    addItem(item);
+    openMenuDetail(item);
   };
 
   const handleIncrementItem = (itemId: string) => {
@@ -97,7 +98,7 @@ export function HomePage() {
       <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-24">
         <HomeOrderTypeCard
           orderType={orderType}
-          tableNumber="10"
+          tableNumber={tableNumber ?? "-"}
           onClickOrderType={() => setIsOrderTypeSheetOpen(true)}
         />
 
@@ -119,7 +120,7 @@ export function HomePage() {
               <HomeStickyNavbar
                 nameStore="RM Ayam Bakar Ammar – Bandung Kota"
                 orderType={orderType}
-                tableNumber="10"
+                tableNumber={tableNumber ?? "-"}
                 onClickSearch={handleClickSearch}
               />
             </div>
@@ -146,7 +147,7 @@ export function HomePage() {
       <HomeCheckoutBar
         itemCount={summary.itemCount}
         total={summary.total}
-        onClick={() => gooeyToast.info("Fitur Checkout Coming Soon!")}
+        onClick={() => router.push("/checkout")}
       />
 
       <HomeSidebar

@@ -29,6 +29,10 @@ type HomeMenuDetailBottomSheetProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (selection: CartSelection, quantity: number) => void;
+  /** Dipakai saat edit dari checkout */
+  initialSelection?: CartSelection;
+  initialQuantity?: number;
+  confirmLabel?: string;
 };
 
 function formatPriceDelta(priceDelta: number) {
@@ -169,6 +173,9 @@ export function HomeMenuDetailBottomSheet({
   isOpen,
   onClose,
   onConfirm,
+  initialSelection,
+  initialQuantity = 1,
+  confirmLabel = "Tambah ke Keranjang",
 }: HomeMenuDetailBottomSheetProps) {
   const [isRendered, setIsRendered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -192,9 +199,9 @@ export function HomeMenuDetailBottomSheet({
 
   useEffect(() => {
     if (!isOpen || !item) return;
-    setSelection(createDefaultCartSelection(item));
-    setQuantity(1);
-  }, [isOpen, item]);
+    setSelection(initialSelection ?? createDefaultCartSelection(item));
+    setQuantity(initialQuantity);
+  }, [isOpen, item, initialSelection, initialQuantity]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -220,9 +227,10 @@ export function HomeMenuDetailBottomSheet({
     onConfirm(selection, quantity);
   };
 
-  if (!isRendered || !item?.customization) return null;
+  if (!isRendered || !item) return null;
 
-  const { variantGroups, addonGroups } = item.customization;
+  const variantGroups = item.customization?.variantGroups ?? [];
+  const addonGroups = item.customization?.addonGroups ?? [];
 
   return (
     <div className="fixed inset-0 z-[80] flex justify-center">
@@ -318,6 +326,22 @@ export function HomeMenuDetailBottomSheet({
                     })}
                   </OptionGroupSection>
                 ))}
+
+                <OptionGroupSection title="Catatan">
+                  <textarea
+                    value={selection.note ?? ""}
+                    onChange={(event) =>
+                      setSelection((current) => ({
+                        ...current,
+                        note: event.target.value,
+                      }))
+                    }
+                    maxLength={200}
+                    rows={3}
+                    placeholder="Contoh: jangan terlalu pedas"
+                    className="w-full resize-none rounded-xl border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-[#FA52A8] focus:ring-2 focus:ring-[#FA52A8]/20"
+                  />
+                </OptionGroupSection>
               </div>
             </div>
 
@@ -343,7 +367,7 @@ export function HomeMenuDetailBottomSheet({
                   !canConfirm && "cursor-not-allowed opacity-50",
                 )}
               >
-                <span className="text-sm font-bold">Tambah ke Keranjang</span>
+                <span className="text-sm font-bold">{confirmLabel}</span>
                 <span className="text-sm font-bold">
                   {formatMenuPrice(totalPrice)}
                 </span>

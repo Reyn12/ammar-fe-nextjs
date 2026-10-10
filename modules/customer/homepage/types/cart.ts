@@ -4,6 +4,8 @@ export type CartSelection = {
   variants: Record<string, string>;
   /** groupId -> choiceId[] */
   addons: Record<string, string[]>;
+  /** Catatan bebas dari user, mis. "jangan pedas" */
+  note?: string;
 };
 
 export type CartLineItem = {
