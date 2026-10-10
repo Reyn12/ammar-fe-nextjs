@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
-import { PAYMENT_METHOD_LABEL } from "@/modules/customer/homepage/types/payment";
+import { useOrder } from "@/modules/customer/order/lib/use-order";
 
 import { PaymentCashWaiting } from "./components/PaymentCashWaiting";
-import { PaymentQrCode } from "./components/PaymentQrCode";
 import { PaymentSuccess } from "./components/PaymentSuccess";
 
 function formatCountdown(ms: number) {
@@ -18,9 +17,35 @@ function formatCountdown(ms: number) {
   return `${minutes}:${seconds}`;
 }
 
+function CenteredMessage({
+  title,
+  actionLabel,
+  onAction,
+}: {
+  title: string;
+  actionLabel: string;
+  onAction: () => void;
+}) {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+      <p className="text-sm font-semibold text-zinc-900">{title}</p>
+      <button
+        type="button"
+        onClick={onAction}
+        className="mt-4 rounded-xl bg-[#FA52A8] px-5 py-2.5 text-sm font-semibold text-white"
+      >
+        {actionLabel}
+      </button>
+    </div>
+  );
+}
+
 export function PaymentPage() {
   const router = useRouter();
-  const { placedOrder, setPlacedOrder } = useCartContext();
+  const searchParams = useSearchParams();
+  const { orderContact, setOrderContact } = useCartContext();
+  const code = searchParams.get("code");
+  const { order, error } = useOrder(code);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -28,37 +53,48 @@ export function PaymentPage() {
     return () => clearInterval(timer);
   }, []);
 
-  if (!placedOrder) {
+  const backToMenu = () => {
+    setOrderContact(null);
+    router.replace("/");
+  };
+
+  if (!code) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm font-semibold text-zinc-900">Belum ada pesanan</p>
-        <button
-          type="button"
-          onClick={() => router.replace("/")}
-          className="mt-4 rounded-xl bg-[#FA52A8] px-5 py-2.5 text-sm font-semibold text-white"
-        >
-          Lihat Menu
-        </button>
+      <CenteredMessage
+        title="Belum ada pesanan"
+        actionLabel="Lihat Menu"
+        onAction={backToMenu}
+      />
+    );
+  }
+
+  if (error && !order) {
+    return (
+      <CenteredMessage
+        title={error}
+        actionLabel="Kembali ke Menu"
+        onAction={backToMenu}
+      />
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="flex flex-1 items-center justify-center text-sm text-zinc-500">
+        Memuat pesanan...
       </div>
     );
   }
 
-  const isQris = placedOrder.paymentMethod === "qris";
-  const remainingMs = placedOrder.expiresAt - now;
+  const contact = orderContact?.code === order.code ? orderContact : undefined;
+  const isQris = order.payment_method === "qris";
+  const isPaid = order.payment_status === "paid";
   const isExpired =
-    placedOrder.status === "expired" ||
-    (isQris && placedOrder.status === "pending" && remainingMs <= 0);
-  const isPaid = placedOrder.status === "paid";
-
-  const markPaid = () => setPlacedOrder({ ...placedOrder, status: "paid" });
-
-  const title = isPaid
-    ? "Pembayaran berhasil"
-    : isExpired
-      ? "Pembayaran kedaluwarsa"
-      : isQris
-        ? "Scan untuk membayar"
-        : "Bayar di kasir";
+    order.payment_status === "expired" || order.status === "cancelled";
+  const expiresAt = order.payment?.expires_at ?? order.expires_at;
+  const remainingMs = expiresAt ? Date.parse(expiresAt) - now : 0;
+  const qrUrl = order.payment?.qr_url;
+  const totalToPay = order.payment?.total_to_pay ?? order.total_amount;
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50">
@@ -68,55 +104,66 @@ export function PaymentPage() {
 
       <main className="flex flex-1 flex-col items-center gap-4 px-4 py-6">
         {isPaid ? (
-          <PaymentSuccess order={placedOrder} />
-        ) : !isQris && !isExpired ? (
-          <PaymentCashWaiting order={placedOrder} />
-        ) : (
+          <PaymentSuccess order={order} contact={contact} />
+        ) : isExpired ? (
           <div className="w-full rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-zinc-100">
-            <p className="text-xs text-zinc-500">
-              {PAYMENT_METHOD_LABEL[placedOrder.paymentMethod]}
+            <h2 className="text-lg font-bold text-zinc-900">
+              Pembayaran kedaluwarsa
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600">
+              Waktu pembayaran untuk {order.code} habis. Silakan buat pesanan
+              lagi.
             </p>
-            <h2 className="mt-1 text-lg font-bold text-zinc-900">{title}</h2>
+          </div>
+        ) : isQris ? (
+          <div className="w-full rounded-2xl bg-white p-5 text-center shadow-sm ring-1 ring-zinc-100">
+            <p className="text-xs text-zinc-500">QRIS</p>
+            <h2 className="mt-1 text-lg font-bold text-zinc-900">
+              Scan untuk membayar
+            </h2>
             <p className="mt-1 text-2xl font-bold text-[#FA52A8]">
-              {formatMenuPrice(placedOrder.total)}
+              {formatMenuPrice(totalToPay)}
             </p>
             <p className="mt-1 text-xs text-zinc-500">
-              Atas nama {placedOrder.customerName}
-              {placedOrder.tableNumber !== null &&
-                ` · Meja ${placedOrder.tableNumber}`}
+              {order.code}
+              {contact && ` · Atas nama ${contact.customerName}`}
+              {order.table_number !== null && ` · Meja ${order.table_number}`}
             </p>
 
-            {!isPaid && !isExpired && isQris && (
-              <>
-                <div className="mt-4 flex justify-center">
-                  <PaymentQrCode value={placedOrder.code} />
-                </div>
-                <p className="mt-3 text-sm text-zinc-600">
-                  Bayar dalam{" "}
-                  <span className="font-semibold text-zinc-900">
-                    {formatCountdown(remainingMs)}
-                  </span>
-                </p>
-              </>
+            {qrUrl ? (
+              <div className="mt-4 flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element -- QR dari Tripay, domain eksternal */}
+                <img
+                  src={qrUrl}
+                  alt="Kode QRIS"
+                  className="h-52 w-52 rounded-lg bg-white object-contain"
+                />
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-zinc-500">QR belum tersedia.</p>
             )}
 
-            {isExpired && (
-              <p className="mt-4 text-sm text-zinc-600">
-                Waktu pembayaran habis. Silakan buat pesanan lagi.
+            {order.payment && order.payment.fee_amount > 0 && (
+              <p className="mt-2 text-xs text-zinc-500">
+                Termasuk biaya layanan{" "}
+                {formatMenuPrice(order.payment.fee_amount)}
               </p>
             )}
-          </div>
-        )}
 
-        {!isPaid && !isExpired && (
-          <button
-            type="button"
-            onClick={markPaid}
-            className="w-full rounded-xl border border-dashed border-zinc-300 py-2.5 text-xs text-zinc-500"
-          >
-            Simulasi (dummy):{" "}
-            {isQris ? "pembayaran QRIS berhasil" : "kasir sudah terima uang"}
-          </button>
+            {expiresAt && (
+              <p className="mt-3 text-sm text-zinc-600">
+                Bayar dalam{" "}
+                <span className="font-semibold text-zinc-900">
+                  {formatCountdown(remainingMs)}
+                </span>
+              </p>
+            )}
+            <p className="mt-2 text-xs text-zinc-400">
+              Halaman ini otomatis berubah setelah pembayaran berhasil.
+            </p>
+          </div>
+        ) : (
+          <PaymentCashWaiting order={order} contact={contact} />
         )}
       </main>
 
@@ -130,10 +177,7 @@ export function PaymentPage() {
         </button>
         <button
           type="button"
-          onClick={() => {
-            setPlacedOrder(null);
-            router.replace("/");
-          }}
+          onClick={backToMenu}
           className="flex-1 rounded-xl bg-[#FA52A8] py-3 text-sm font-semibold text-white"
         >
           Kembali ke Menu

@@ -9,6 +9,7 @@ type HomeMenuListItemProps = {
   name: string;
   price: number;
   quantity: number;
+  isAvailable?: boolean;
   onAdd: () => void;
   onIncrement: () => void;
   onDecrement: () => void;
@@ -19,6 +20,7 @@ export function HomeMenuListItem({
   name,
   price,
   quantity,
+  isAvailable = true,
   onAdd,
   onIncrement,
   onDecrement,
@@ -52,7 +54,15 @@ export function HomeMenuListItem({
       </button>
 
       <div className="flex flex-1 flex-col p-3 pt-2">
-        {isInCart ? (
+        {!isAvailable ? (
+          <button
+            type="button"
+            disabled
+            className="mt-auto w-full cursor-not-allowed rounded-lg border border-zinc-200 bg-zinc-100 py-1.5 text-sm font-medium text-zinc-400"
+          >
+            Habis
+          </button>
+        ) : isInCart ? (
           <HomeMenuQuantityStepper
             quantity={quantity}
             itemName={name}

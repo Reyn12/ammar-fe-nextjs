@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
+import { useCatalog } from "@/modules/customer/catalog/catalog-context";
 
 import { HomeSearchBar } from "./components/HomeSearchBar";
 import { HomeSearchEmptyState } from "./components/HomeSearchEmptyState";
@@ -12,12 +12,13 @@ import { filterMenuItemsByQuery } from "./lib/filter-menu-items-by-query";
 
 export function SearchPage() {
   const router = useRouter();
+  const { sections } = useCatalog();
   const [query, setQuery] = useState("");
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
   const results = useMemo(
-    () => filterMenuItemsByQuery(HOME_MENU_SECTIONS, query),
-    [query],
+    () => filterMenuItemsByQuery(sections, query),
+    [sections, query],
   );
 
   const handleAddItem = (itemId: string) => {

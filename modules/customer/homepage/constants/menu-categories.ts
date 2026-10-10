@@ -15,7 +15,7 @@ export const HOME_MENU_CATEGORIES: MenuCategory[] = [
 export const MENU_CATEGORY_SECTION_IDS: Record<string, string[]> = {
   "paket-hemat": ["menu-paket"],
   makanan: ["menu-makanan", "menu-lain"],
-  "ikan-lauk": ["menu-ikan-lauk"],
+  "ikan-lauk": ["menu-ikan-lauk", "menu-ikan-lauk-utama"],
   minuman: ["menu-minuman"],
   snack: ["menu-cemilan"],
 };

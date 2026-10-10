@@ -12,21 +12,11 @@ export const PAYMENT_METHOD_DESCRIPTION: Record<PaymentMethod, string> = {
   cash: "Bayar langsung ke kasir dengan kode pesanan",
 };
 
-export type PlacedOrderStatus = "pending" | "paid" | "expired";
-
-/** Pesanan yang baru dibuat dari checkout (dummy, belum ke backend) */
-export type PlacedOrder = {
+/** Data kontak yang diisi saat checkout; dipakai di halaman pembayaran. */
+export type OrderContact = {
   code: string;
   customerName: string;
   customerPhone: string;
   /** Kosong kalau user tidak mengisi email */
   customerEmail: string;
-  /** null untuk takeaway */
-  tableNumber: number | null;
-  paymentMethod: PaymentMethod;
-  total: number;
-  itemCount: number;
-  status: PlacedOrderStatus;
-  /** epoch ms; hanya dipakai untuk QRIS */
-  expiresAt: number;
 };

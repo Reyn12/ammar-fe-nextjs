@@ -5,8 +5,9 @@ import { motion } from "framer-motion";
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
 import {
   PAYMENT_METHOD_LABEL,
-  type PlacedOrder,
+  type OrderContact,
 } from "@/modules/customer/homepage/types/payment";
+import type { ApiOrder } from "@/modules/customer/order/api-types";
 
 function SvgIcon({
   className,
@@ -63,7 +64,15 @@ function NotifyRow({
   );
 }
 
-export function PaymentSuccess({ order }: { order: PlacedOrder }) {
+export function PaymentSuccess({
+  order,
+  contact,
+}: {
+  order: ApiOrder;
+  contact?: OrderContact;
+}) {
+  const itemCount = order.items.reduce((total, item) => total + item.qty, 0);
+
   return (
     <div className="flex w-full flex-col items-center gap-5">
       <div className="flex flex-col items-center pt-2 text-center">
@@ -89,20 +98,22 @@ export function PaymentSuccess({ order }: { order: PlacedOrder }) {
         <div className="bg-[#FA52A8] px-5 py-4 text-center text-white">
           <p className="text-xs text-white/80">Total dibayar</p>
           <p className="mt-0.5 text-2xl font-bold">
-            {formatMenuPrice(order.total)}
+            {formatMenuPrice(order.payment?.total_to_pay ?? order.total_amount)}
           </p>
         </div>
 
         <div className="relative flex flex-col gap-2.5 px-5 py-4">
           <ReceiptRow label="Kode pesanan" value={order.code} />
-          <ReceiptRow label="Atas nama" value={order.customerName} />
-          {order.tableNumber !== null && (
-            <ReceiptRow label="Nomor meja" value={`Meja ${order.tableNumber}`} />
+          {contact && (
+            <ReceiptRow label="Atas nama" value={contact.customerName} />
           )}
-          <ReceiptRow label="Jumlah item" value={`${order.itemCount} item`} />
+          {order.table_number !== null && (
+            <ReceiptRow label="Nomor meja" value={`Meja ${order.table_number}`} />
+          )}
+          <ReceiptRow label="Jumlah item" value={`${itemCount} item`} />
           <ReceiptRow
             label="Metode bayar"
-            value={PAYMENT_METHOD_LABEL[order.paymentMethod]}
+            value={PAYMENT_METHOD_LABEL[order.payment_method]}
           />
         </div>
       </div>
@@ -114,6 +125,7 @@ export function PaymentSuccess({ order }: { order: PlacedOrder }) {
         <p className="mt-0.5 text-xs text-zinc-600">
           Cek pesan masuk untuk detail pesanan dan bukti transaksi.
         </p>
+        {contact && (
         <ul className="mt-3 flex flex-col gap-3">
           <NotifyRow
             icon={
@@ -122,9 +134,9 @@ export function PaymentSuccess({ order }: { order: PlacedOrder }) {
               </SvgIcon>
             }
             title="WhatsApp"
-            target={order.customerPhone}
+            target={contact.customerPhone}
           />
-          {order.customerEmail && (
+          {contact.customerEmail && (
             <NotifyRow
               icon={
                 <SvgIcon className="h-5 w-5">
@@ -133,10 +145,11 @@ export function PaymentSuccess({ order }: { order: PlacedOrder }) {
                 </SvgIcon>
               }
               title="Email"
-              target={order.customerEmail}
+              target={contact.customerEmail}
             />
           )}
         </ul>
+        )}
       </div>
     </div>
   );

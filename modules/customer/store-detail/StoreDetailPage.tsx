@@ -18,7 +18,7 @@ import {
 } from "./components/StoreDetailIcons";
 import { StoreDetailHeader } from "./components/StoreDetailHeader";
 import { StoreDetailSection } from "./components/StoreDetailSection";
-import { DUMMY_STORE_DETAIL } from "./constants/store-detail-dummy";
+import { useCatalog } from "@/modules/customer/catalog/catalog-context";
 import { useTodayIndex } from "./lib/use-today-index";
 
 const ORDER_TYPE_ICON: Record<OrderType, typeof UtensilsIcon> = {
@@ -28,10 +28,35 @@ const ORDER_TYPE_ICON: Record<OrderType, typeof UtensilsIcon> = {
 
 export function StoreDetailPage() {
   const router = useRouter();
-  const store = DUMMY_STORE_DETAIL;
+  const { store, status, reload } = useCatalog();
   const todayIndex = useTodayIndex();
   const todayHours =
-    todayIndex === null ? null : store.openingHours[todayIndex];
+    todayIndex === null || !store ? null : store.openingHours[todayIndex];
+
+  if (!store) {
+    return (
+      <div className="flex flex-1 flex-col">
+        <StoreDetailHeader onBack={() => router.back()} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
+          <p className="text-sm text-zinc-600">
+            {status === "error"
+              ? "Info toko gagal dimuat. Periksa koneksi lalu coba lagi."
+              : "Memuat info toko..."}
+          </p>
+          {status === "error" && (
+            <button
+              type="button"
+              onClick={reload}
+              className="rounded-xl bg-[#FA52A8] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Coba lagi
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   const phoneHref = `tel:${store.phone.replace(/[^\d+]/g, "")}`;
 
   return (
@@ -42,7 +67,11 @@ export function StoreDetailPage() {
         <div className="bg-gradient-to-br from-[#FA52A8] to-[#c2307d] px-4 pb-14 pt-6 text-white">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-            {todayHours ? `Buka hari ini, ${todayHours.hours}` : "Buka"}
+            {!todayHours
+              ? "Jam operasional"
+              : todayHours.hours === "Tutup"
+                ? "Tutup hari ini"
+                : `Buka hari ini, ${todayHours.hours}`}
           </span>
           <h2 className="mt-3 text-xl font-bold leading-snug">{store.name}</h2>
           <p className="mt-1.5 text-sm text-white/85">{store.description}</p>

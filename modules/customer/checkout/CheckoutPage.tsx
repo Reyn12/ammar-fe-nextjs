@@ -1,10 +1,11 @@
 "use client";
 
 import { gooeyToast } from "goey-toast";
+import { createOrder } from "@/modules/customer/order/lib/order-api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
+import { useCatalog } from "@/modules/customer/catalog/catalog-context";
 import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
@@ -35,20 +36,22 @@ export function CheckoutPage() {
     decrementLine,
     updateLine,
     clearCart,
-    setPlacedOrder,
-    tableNumber,
+    setOrderContact,
+    table,
   } = useCartContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER_INFO);
   const [showErrors, setShowErrors] = useState(false);
   const customerErrors = validateCustomerInfo(customer);
   const isDineIn = orderType === "dine-in";
-  const isMissingTable = isDineIn && tableNumber === null;
+  const isMissingTable = isDineIn && table === null;
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
   );
+  const { sections } = useCatalog();
   const [editingLine, setEditingLine] = useState<CartLineItem | null>(null);
   const editingItem = editingLine
-    ? findMenuItemById(HOME_MENU_SECTIONS, editingLine.menuItemId)
+    ? findMenuItemById(sections, editingLine.menuItemId)
     : undefined;
 
   const handleConfirmEdit = (selection: CartSelection, quantity: number) => {
@@ -58,11 +61,13 @@ export function CheckoutPage() {
   };
 
   const lines = Object.values(cart.lines).flatMap((line) => {
-    const item = findMenuItemById(HOME_MENU_SECTIONS, line.menuItemId);
+    const item = findMenuItemById(sections, line.menuItemId);
     return item ? [{ line, item }] : [];
   });
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    if (isSubmitting) return;
+
     if (Object.keys(customerErrors).length > 0 || isMissingTable) {
       setShowErrors(true);
       gooeyToast.info(
@@ -78,24 +83,31 @@ export function CheckoutPage() {
       return;
     }
 
-    const now = new Date();
-    const datePart = now.toISOString().slice(0, 10).replaceAll("-", "");
-    const sequence = String(Math.floor(Math.random() * 900) + 100);
+    setIsSubmitting(true);
 
-    setPlacedOrder({
-      code: `AMR-${datePart}-${sequence}`,
-      customerName: customer.name.trim(),
-      customerPhone: customer.phone.replace(/[\s-]/g, ""),
-      customerEmail: customer.email.trim(),
-      tableNumber: isDineIn ? tableNumber : null,
-      paymentMethod,
-      total: summary.total,
-      itemCount: summary.itemCount,
-      status: "pending",
-      expiresAt: now.getTime() + 15 * 60 * 1000,
-    });
-    clearCart();
-    router.replace("/payment");
+    try {
+      const order = await createOrder({
+        orderType,
+        tableToken: table?.token ?? null,
+        paymentMethod,
+        customer,
+        lines: lines.map(({ line }) => line),
+      });
+
+      setOrderContact({
+        code: order.code,
+        customerName: customer.name.trim(),
+        customerPhone: customer.phone.replace(/[\s-]/g, ""),
+        customerEmail: customer.email.trim(),
+      });
+      clearCart();
+      router.replace(`/payment?code=${encodeURIComponent(order.code)}`);
+    } catch (error) {
+      gooeyToast.error(
+        error instanceof Error ? error.message : "Pesanan gagal dibuat",
+      );
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,7 +123,7 @@ export function CheckoutPage() {
               <p className="text-xs text-zinc-500">Tipe pesanan</p>
               <p className="mt-0.5 text-sm font-semibold text-zinc-900">
                 {ORDER_TYPE_LABEL[orderType]}
-                {isDineIn && tableNumber !== null && ` · Meja ${tableNumber}`}
+                {isDineIn && table !== null && ` · Meja ${table.number}`}
               </p>
               {isMissingTable && (
                 <p
@@ -180,9 +192,16 @@ export function CheckoutPage() {
           <button
             type="button"
             onClick={handlePlaceOrder}
-            className="flex w-full items-center justify-between rounded-xl bg-[#FA52A8] px-4 py-3 text-sm font-semibold text-white transition active:opacity-90"
+            disabled={isSubmitting}
+            className="flex w-full disabled:opacity-60 items-center justify-between rounded-xl bg-[#FA52A8] px-4 py-3 text-sm font-semibold text-white transition active:opacity-90"
           >
-            <span>{paymentMethod ? "Buat Pesanan" : "Pilih metode bayar"}</span>
+            <span>
+              {isSubmitting
+                ? "Memproses..."
+                : paymentMethod
+                  ? "Buat Pesanan"
+                  : "Pilih metode bayar"}
+            </span>
             <span>{formatMenuPrice(summary.total)}</span>
           </button>
         </div>

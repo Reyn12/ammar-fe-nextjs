@@ -9,6 +9,8 @@ export type MenuItem = {
   /** Harga dasar sebelum variant/addon */
   price: number;
   kind: MenuItemKind;
+  /** false = habis; default dianggap tersedia */
+  isAvailable?: boolean;
   /** Wajib ada kalau kind = "configurable" */
   customization?: MenuCustomization;
 };

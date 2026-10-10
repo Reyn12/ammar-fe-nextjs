@@ -5,7 +5,8 @@ import { gooeyToast } from "goey-toast";
 import { useRouter } from "next/navigation";
 
 import { HOME_MENU_CATEGORIES } from "@/modules/customer/homepage/constants/menu-categories";
-import { HOME_MENU_SECTIONS } from "@/modules/customer/homepage/constants/menu-sections";
+import { useCatalog } from "@/modules/customer/catalog/catalog-context";
+import { useTodayIndex } from "@/modules/customer/store-detail/lib/use-today-index";
 import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
 import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { filterMenuSectionsByCategory } from "@/modules/customer/homepage/lib/filter-menu-sections-by-category";
@@ -38,13 +39,22 @@ export function HomePage() {
     decrementItem,
     orderType,
     setOrderType,
-    tableNumber,
+    table,
   } = useCartContext();
   const { sentinelRef, isPast: showStickyNavbar } = useShowWhenScrolledPast();
+  const { sections, store, status, reload } = useCatalog();
+  const todayIndex = useTodayIndex();
+  const todayHours =
+    todayIndex === null ? undefined : store?.openingHours[todayIndex]?.hours;
+  const openHoursLabel = !todayHours
+    ? "Lihat jam operasional"
+    : todayHours === "Tutup"
+      ? "Tutup hari ini"
+      : `Buka hari ini, ${todayHours}`;
 
   const filteredSections = useMemo(
-    () => filterMenuSectionsByCategory(HOME_MENU_SECTIONS, activeCategoryId),
-    [activeCategoryId],
+    () => filterMenuSectionsByCategory(sections, activeCategoryId),
+    [sections, activeCategoryId],
   );
   const handleClickSearch = () => router.push("/search");
 
@@ -52,14 +62,14 @@ export function HomePage() {
   const closeMenuDetail = () => setMenuDetailItem(null);
 
   const handleAddItem = (itemId: string) => {
-    const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
-    if (!item) return;
+    const item = findMenuItemById(sections, itemId);
+    if (!item || item.isAvailable === false) return;
 
     openMenuDetail(item);
   };
 
   const handleIncrementItem = (itemId: string) => {
-    const item = findMenuItemById(HOME_MENU_SECTIONS, itemId);
+    const item = findMenuItemById(sections, itemId);
     if (!item) return;
 
     if (item.kind === "configurable") {
@@ -88,8 +98,8 @@ export function HomePage() {
   return (
     <div className="flex flex-1 flex-col">
       <HomeHeader
-        nameStore="RM Ayam Bakar Ammar – Bandung Kota"
-        openHours="Buka hari ini, 00:00-23:59"
+        nameStore={store?.name ?? ""}
+        openHours={openHoursLabel}
         onClickSearch={handleClickSearch}
         onClickHumburger={() => setIsSidebarOpen(true)}
         onClickDetail={() => router.push("/store-detail")}
@@ -98,7 +108,7 @@ export function HomePage() {
       <main className="mt-4 flex flex-1 flex-col gap-4 px-4 pb-24">
         <HomeOrderTypeCard
           orderType={orderType}
-          tableNumber={tableNumber ?? "-"}
+          tableNumber={table?.number ?? "-"}
           onClickOrderType={() => setIsOrderTypeSheetOpen(true)}
         />
 
@@ -118,9 +128,9 @@ export function HomePage() {
           >
             <div className="overflow-hidden">
               <HomeStickyNavbar
-                nameStore="RM Ayam Bakar Ammar – Bandung Kota"
+                nameStore={store?.name ?? ""}
                 orderType={orderType}
-                tableNumber={tableNumber ?? "-"}
+                tableNumber={table?.number ?? "-"}
                 onClickSearch={handleClickSearch}
               />
             </div>
@@ -135,13 +145,36 @@ export function HomePage() {
           </div>
         </div>
 
-        <HomeMenuListBuilder
-          sections={filteredSections}
-          getQuantity={getQuantity}
-          onAddItem={handleAddItem}
-          onIncrementItem={handleIncrementItem}
-          onDecrementItem={handleDecrementItem}
-        />
+        {status === "loading" && (
+          <p className="py-10 text-center text-sm text-zinc-500">
+            Memuat menu...
+          </p>
+        )}
+
+        {status === "error" && (
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <p className="text-sm text-zinc-600">
+              Menu gagal dimuat. Periksa koneksi lalu coba lagi.
+            </p>
+            <button
+              type="button"
+              onClick={reload}
+              className="rounded-xl bg-[#FA52A8] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Coba lagi
+            </button>
+          </div>
+        )}
+
+        {status === "ready" && (
+          <HomeMenuListBuilder
+            sections={filteredSections}
+            getQuantity={getQuantity}
+            onAddItem={handleAddItem}
+            onIncrementItem={handleIncrementItem}
+            onDecrementItem={handleDecrementItem}
+          />
+        )}
       </main>
 
       <HomeCheckoutBar
@@ -152,7 +185,7 @@ export function HomePage() {
 
       <HomeSidebar
         isOpen={isSidebarOpen}
-        nameStore="RM Ayam Bakar Ammar – Bandung Kota"
+        nameStore={store?.name ?? ""}
         onClose={() => setIsSidebarOpen(false)}
         onClickOrderHistory={() => router.push("/order-history")}
       />

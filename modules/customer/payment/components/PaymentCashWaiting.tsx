@@ -3,7 +3,8 @@
 import { gooeyToast } from "goey-toast";
 
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
-import type { PlacedOrder } from "@/modules/customer/homepage/types/payment";
+import type { OrderContact } from "@/modules/customer/homepage/types/payment";
+import type { ApiOrder } from "@/modules/customer/order/api-types";
 
 const STEPS = [
   "Tunjukkan kode pesanan ke kasir",
@@ -35,7 +36,13 @@ function SvgIcon({
   );
 }
 
-export function PaymentCashWaiting({ order }: { order: PlacedOrder }) {
+export function PaymentCashWaiting({
+  order,
+  contact,
+}: {
+  order: ApiOrder;
+  contact?: OrderContact;
+}) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(order.code);
@@ -63,6 +70,9 @@ export function PaymentCashWaiting({ order }: { order: PlacedOrder }) {
           <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
           Menunggu pembayaran
         </span>
+        <p className="mt-2 text-xs text-zinc-400">
+          Halaman ini otomatis berubah setelah kasir mengonfirmasi.
+        </p>
       </div>
 
       <div className="w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-100">
@@ -91,12 +101,12 @@ export function PaymentCashWaiting({ order }: { order: PlacedOrder }) {
             <div>
               <p className="text-xs text-zinc-500">Total yang dibayar</p>
               <p className="text-lg font-bold text-[#FA52A8]">
-                {formatMenuPrice(order.total)}
+                {formatMenuPrice(order.total_amount)}
               </p>
             </div>
             <div className="text-right text-xs text-zinc-500">
-              <p>{order.customerName}</p>
-              {order.tableNumber !== null && <p>Meja {order.tableNumber}</p>}
+              {contact && <p>{contact.customerName}</p>}
+              {order.table_number !== null && <p>Meja {order.table_number}</p>}
             </div>
           </div>
         </div>

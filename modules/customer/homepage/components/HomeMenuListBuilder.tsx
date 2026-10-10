@@ -35,6 +35,7 @@ export function HomeMenuListBuilder({
                 name={item.name}
                 price={item.price}
                 quantity={getQuantity(item.id)}
+                isAvailable={item.isAvailable}
                 onAdd={() => onAddItem(item.id)}
                 onIncrement={() => onIncrementItem(item.id)}
                 onDecrement={() => onDecrementItem(item.id)}
