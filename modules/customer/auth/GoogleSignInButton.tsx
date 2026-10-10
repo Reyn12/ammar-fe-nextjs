@@ -31,11 +31,13 @@ function GoogleIcon({ className }: { className?: string }) {
 
 type GoogleSignInButtonProps = {
   className?: string;
+  label?: string;
   onSignedIn?: () => void;
 };
 
 export function GoogleSignInButton({
   className,
+  label = "Masuk dengan Google",
   onSignedIn,
 }: GoogleSignInButtonProps) {
   const { signInWithGoogle } = useAuth();
@@ -66,7 +68,7 @@ export function GoogleSignInButton({
       )}
     >
       <GoogleIcon className="h-5 w-5" />
-      {isLoading ? "Membuka Google..." : "Masuk dengan Google"}
+      {isLoading ? "Membuka Google..." : label}
     </button>
   );
 }

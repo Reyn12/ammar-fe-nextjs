@@ -1,8 +1,13 @@
+import { gooeyToast } from "goey-toast";
+
+import { useAuth } from "@/modules/customer/auth/auth-context";
+import { GoogleSignInButton } from "@/modules/customer/auth/GoogleSignInButton";
 import type {
   CustomerInfo,
   CustomerInfoErrors,
 } from "@/modules/customer/checkout/lib/validate-customer";
 import { cn } from "@/shared/lib/cn";
+import { isFirebaseConfigured } from "@/shared/lib/firebase";
 
 type CheckoutCustomerFormProps = {
   value: CustomerInfo;
@@ -47,6 +52,19 @@ export function CheckoutCustomerForm({
   errors,
   onChange,
 }: CheckoutCustomerFormProps) {
+  const { user, status, signInWithGoogle } = useAuth();
+
+  // Pilih akun Google lain (popup selalu menampilkan pemilih akun).
+  const handleChangeAccount = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      gooeyToast.error(
+        error instanceof Error ? error.message : "Gagal mengganti akun Google",
+      );
+    }
+  };
+
   return (
     <section className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-zinc-100">
       <h2 className="text-sm font-semibold text-zinc-900">Data pemesan</h2>
@@ -77,6 +95,56 @@ export function CheckoutCustomerForm({
               onChange({ ...value, phone: event.target.value }),
           }}
         />
+
+        {(isFirebaseConfigured || user) && (
+          <div className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-zinc-700">
+              Email
+              <span className="font-normal text-zinc-400"> (opsional)</span>
+            </span>
+
+            {status === "loading" ? (
+              <div className="h-[46px] animate-pulse rounded-lg bg-zinc-100" />
+            ) : user ? (
+              <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
+                {user.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- foto profil Google
+                  <img
+                    src={user.photoUrl}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="h-8 w-8 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#FA52A8]/10 text-sm font-bold text-[#FA52A8]">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-zinc-900">{user.email}</p>
+                  <p className="text-[11px] text-zinc-500">
+                    Dari akun Google · pesanan tersimpan di riwayatmu
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleChangeAccount()}
+                  className="shrink-0 text-xs font-medium text-[#FA52A8]"
+                >
+                  Ganti
+                </button>
+              </div>
+            ) : (
+              <>
+                <GoogleSignInButton label="Isi dengan Google" />
+                <p className="text-xs text-zinc-500">
+                  Nama dan email terisi otomatis dari akun Google, dan pesananmu
+                  tersimpan di riwayat.
+                </p>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
