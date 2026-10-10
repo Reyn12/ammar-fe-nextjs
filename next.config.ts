@@ -28,7 +28,11 @@ const nextConfig: NextConfig = {
     if (!apiBaseUrl) return [];
 
     // Browser memanggil /api/... di domain Next.js; diteruskan ke Laravel (tanpa CORS).
-    return [{ source: "/api/:path*", destination: `${apiBaseUrl}/api/:path*` }];
+    return [
+      { source: "/api/:path*", destination: `${apiBaseUrl}/api/:path*` },
+      // Aset publik backend (gambar menu) lewat domain yang sama, tidak bergantung APP_URL Laravel.
+      { source: "/be-assets/:path*", destination: `${apiBaseUrl}/:path*` },
+    ];
   },
 };
 

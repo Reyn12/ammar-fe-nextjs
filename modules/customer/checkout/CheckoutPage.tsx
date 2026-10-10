@@ -5,6 +5,7 @@ import { createOrder } from "@/modules/customer/order/lib/order-api";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useAuth } from "@/modules/customer/auth/auth-context";
 import { useCatalog } from "@/modules/customer/catalog/catalog-context";
 import { useCartContext } from "@/modules/customer/homepage/lib/cart-context";
 import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item-by-id";
@@ -40,7 +41,16 @@ export function CheckoutPage() {
     table,
   } = useCartContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER_INFO);
+  const { user } = useAuth();
+  // Isian yang diubah user; sisanya diisi otomatis dari akun Google.
+  const [edited, setEdited] = useState<Partial<CustomerInfo>>({});
+  const customer: CustomerInfo = {
+    ...EMPTY_CUSTOMER_INFO,
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    ...edited,
+  };
+  const setCustomer = (next: CustomerInfo) => setEdited(next);
   const [showErrors, setShowErrors] = useState(false);
   const customerErrors = validateCustomerInfo(customer);
   const isDineIn = orderType === "dine-in";

@@ -10,6 +10,24 @@ export class ApiError extends Error {
 
 export const BRANCH_ID = process.env.NEXT_PUBLIC_BRANCH_ID ?? "1";
 
+type TokenGetter = () => Promise<string | null>;
+
+let tokenGetter: TokenGetter | null = null;
+
+/** Didaftarkan AuthProvider supaya setiap request membawa token login kalau ada. */
+export function setAuthTokenGetter(getter: TokenGetter | null) {
+  tokenGetter = getter;
+}
+
+async function authHeaders(): Promise<Record<string, string>> {
+  try {
+    const token = await tokenGetter?.();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 type ErrorBody = {
   message?: string;
   errors?: Record<string, string[]>;
@@ -33,7 +51,7 @@ async function toApiError(response: Response) {
 /** GET ke /api/v1/... (diteruskan Next.js ke Laravel lewat rewrite). */
 export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`/api/v1${path}`, {
-    headers: { Accept: "application/json" },
+    headers: { Accept: "application/json", ...(await authHeaders()) },
     signal,
   });
 
@@ -45,7 +63,11 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(`/api/v1${path}`, {
     method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(await authHeaders()),
+    },
     body: JSON.stringify(body),
   });
 

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { useAuth } from "@/modules/customer/auth/auth-context";
+import { GoogleSignInButton } from "@/modules/customer/auth/GoogleSignInButton";
 import { cn } from "@/shared/lib/cn";
 
 type HomeSidebarProps = {
@@ -38,6 +40,7 @@ export function HomeSidebar({
   onClose,
   onClickOrderHistory,
 }: HomeSidebarProps) {
+  const { user, status, signOut } = useAuth();
   const [isRendered, setIsRendered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -119,6 +122,43 @@ export function HomeSidebar({
                 </svg>
               </button>
             </div>
+          </div>
+
+          <div className="mt-3 px-4">
+            {status === "loading" ? (
+              <div className="h-16 animate-pulse rounded-xl bg-zinc-200" />
+            ) : user ? (
+              <div className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 shadow-sm">
+                {user.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- foto profil Google
+                  <img
+                    src={user.photoUrl}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="h-11 w-11 shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FA52A8]/10 text-base font-bold text-[#FA52A8]">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-zinc-900">
+                    {user.name}
+                  </p>
+                  <p className="truncate text-xs text-zinc-500">{user.email}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void signOut()}
+                  className="shrink-0 text-xs font-medium text-zinc-500 underline-offset-2 hover:text-[#FA52A8] hover:underline"
+                >
+                  Keluar
+                </button>
+              </div>
+            ) : (
+              <GoogleSignInButton />
+            )}
           </div>
 
           <nav className="mt-3 flex flex-col gap-2 px-4">

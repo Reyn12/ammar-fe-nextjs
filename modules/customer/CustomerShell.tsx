@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/modules/customer/auth/auth-context";
 import { CatalogProvider } from "@/modules/customer/catalog/catalog-context";
 import { CartProvider } from "@/modules/customer/homepage/lib/cart-context";
 import { CUSTOMER_MAX_WIDTH } from "@/shared/constants/layout";
@@ -18,9 +19,11 @@ export function CustomerShell({ children, className }: CustomerShellProps) {
         )}
         style={{ maxWidth: CUSTOMER_MAX_WIDTH }}
       >
-        <CatalogProvider>
-          <CartProvider>{children}</CartProvider>
-        </CatalogProvider>
+        <AuthProvider>
+          <CatalogProvider>
+            <CartProvider>{children}</CartProvider>
+          </CatalogProvider>
+        </AuthProvider>
       </div>
     </div>
   );

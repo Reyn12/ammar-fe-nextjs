@@ -13,6 +13,18 @@ import type { MenuSection } from "@/modules/customer/homepage/types/menu-section
 
 const FALLBACK_IMAGE = "/images/img_menu_dummy.png";
 
+/** Gambar dari backend dilayani lewat rewrite /be-assets supaya tidak terikat domain backend. */
+function toAssetUrl(imageUrl: string | null) {
+  if (!imageUrl) return FALLBACK_IMAGE;
+
+  try {
+    const { pathname } = new URL(imageUrl, "http://placeholder.local");
+    return pathname.startsWith("/images/") ? `/be-assets${pathname}` : imageUrl;
+  } catch {
+    return FALLBACK_IMAGE;
+  }
+}
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -60,7 +72,7 @@ export function mapProduct(product: ApiProduct): MenuItem {
 
   return {
     id: String(product.id),
-    imageUrl: product.image_url ?? FALLBACK_IMAGE,
+    imageUrl: toAssetUrl(product.image_url),
     name: product.name,
     price: product.price,
     kind: customization ? "configurable" : "simple",
