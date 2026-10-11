@@ -281,6 +281,25 @@ export function HomeMenuDetailBottomSheet({
                   {formatMenuPrice(item.price)}
                 </p>
               </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup"
+                className="-mr-1 flex h-8 w-8 shrink-0 items-center justify-center self-start rounded-full text-zinc-500 transition hover:bg-zinc-100 active:bg-zinc-200"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
