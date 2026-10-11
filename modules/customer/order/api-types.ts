@@ -24,6 +24,8 @@ export type ApiOrderItem = {
 
 export type ApiOrder = {
   code: string;
+  /** 3 angka belakang kode, dipanggil dapur (mis. "021") */
+  queue_number: string;
   order_type: "dine_in" | "takeaway";
   status: "pending" | "cooking" | "ready" | "completed" | "cancelled";
   table_number: number | null;

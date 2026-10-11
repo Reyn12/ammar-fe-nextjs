@@ -103,6 +103,7 @@ export function PaymentSuccess({
         </div>
 
         <div className="relative flex flex-col gap-2.5 px-5 py-4">
+          <ReceiptRow label="Nomor antrean" value={order.queue_number} />
           <ReceiptRow label="Kode pesanan" value={order.code} />
           {contact && (
             <ReceiptRow label="Atas nama" value={contact.customerName} />

@@ -77,9 +77,13 @@ export function PaymentCashWaiting({
 
       <div className="w-full overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-zinc-100">
         <div className="px-5 py-5 text-center">
-          <p className="text-xs text-zinc-500">Kode pesanan</p>
-          <p className="mt-1 text-2xl font-bold tracking-widest text-zinc-900">
-            {order.code}
+          <p className="text-xs text-zinc-500">Nomor antrean</p>
+          <p className="mt-1 text-5xl font-bold tracking-widest text-zinc-900">
+            {order.queue_number}
+          </p>
+          <p className="mt-2 text-xs text-zinc-500">
+            Kode pesanan{" "}
+            <span className="font-semibold text-zinc-700">{order.code}</span>
           </p>
           <button
             type="button"
