@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* iOS Safari otomatis zoom ke input dengan font < 16px saat keyboard muncul. */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
