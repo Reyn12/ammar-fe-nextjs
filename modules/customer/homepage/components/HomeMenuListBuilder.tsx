@@ -33,6 +33,7 @@ export function HomeMenuListBuilder({
                 key={item.id}
                 imageUrl={item.imageUrl}
                 name={item.name}
+                contents={item.components}
                 price={item.price}
                 quantity={getQuantity(item.id)}
                 isAvailable={item.isAvailable}

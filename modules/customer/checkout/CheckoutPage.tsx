@@ -2,7 +2,7 @@
 
 import { gooeyToast } from "goey-toast";
 import { createOrder } from "@/modules/customer/order/lib/order-api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/modules/customer/auth/auth-context";
@@ -12,6 +12,7 @@ import { findMenuItemById } from "@/modules/customer/homepage/lib/find-menu-item
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
 import { HomeMenuDetailBottomSheet } from "@/modules/customer/homepage/components/HomeMenuDetailBottomSheet";
 import type { CartLineItem, CartSelection } from "@/modules/customer/homepage/types/cart";
+import { LoadingDialog } from "@/shared/components/LoadingDialog";
 import type { PaymentMethod } from "@/modules/customer/homepage/types/payment";
 import { ORDER_TYPE_LABEL } from "@/modules/customer/homepage/types/order";
 
@@ -25,6 +26,10 @@ import {
   validateCustomerInfo,
   type CustomerInfo,
 } from "./lib/validate-customer";
+import {
+  loadCustomerProfile,
+  saveCustomerProfile,
+} from "./lib/customer-profile";
 import { describeSelection } from "./lib/describe-selection";
 
 export function CheckoutPage() {
@@ -39,6 +44,7 @@ export function CheckoutPage() {
     clearCart,
     setOrderContact,
     table,
+    isHydrated,
   } = useCartContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
@@ -50,7 +56,16 @@ export function CheckoutPage() {
     email: user?.email ?? "",
     ...edited,
   };
-  const setCustomer = (next: CustomerInfo) => setEdited(next);
+  const setCustomer = (next: CustomerInfo) => {
+    setEdited(next);
+    saveCustomerProfile(next);
+  };
+
+  // Nama & nomor WhatsApp terakhir diisi otomatis, jadi tidak perlu mengetik ulang.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pulihkan data dari localStorage setelah mount
+    setEdited((current) => ({ ...loadCustomerProfile(), ...current }));
+  }, []);
   const [showErrors, setShowErrors] = useState(false);
   const customerErrors = validateCustomerInfo(customer);
   const isDineIn = orderType === "dine-in";
@@ -58,7 +73,7 @@ export function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(
     null,
   );
-  const { sections } = useCatalog();
+  const { sections, status: catalogStatus } = useCatalog();
   const [editingLine, setEditingLine] = useState<CartLineItem | null>(null);
   const editingItem = editingLine
     ? findMenuItemById(sections, editingLine.menuItemId)
@@ -125,7 +140,11 @@ export function CheckoutPage() {
       <CheckoutHeader onBack={() => router.back()} />
 
       <main className="flex flex-1 flex-col gap-3 bg-zinc-50 px-4 py-4 pb-28">
-        {lines.length === 0 ? (
+        {!isHydrated || (lines.length === 0 && catalogStatus === "loading") ? (
+          <p className="py-16 text-center text-sm text-zinc-500">
+            Memuat pesanan...
+          </p>
+        ) : lines.length === 0 ? (
           <CheckoutEmptyState onBackToMenu={() => router.replace("/")} />
         ) : (
           <>
@@ -216,6 +235,8 @@ export function CheckoutPage() {
           </button>
         </div>
       )}
+
+      <LoadingDialog open={isSubmitting} message="Membuat pesananmu..." />
 
       <HomeMenuDetailBottomSheet
         item={editingItem ?? null}

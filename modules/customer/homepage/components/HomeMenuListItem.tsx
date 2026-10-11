@@ -2,11 +2,15 @@ import Image from "next/image";
 
 import { formatMenuPrice } from "@/modules/customer/homepage/lib/format-menu-price";
 
+import type { MenuItemComponent } from "@/modules/customer/homepage/types/menu-item";
+
 import { HomeMenuQuantityStepper } from "./HomeMenuQuantityStepper";
 
 type HomeMenuListItemProps = {
   imageUrl: string;
   name: string;
+  /** Isi paket; hanya ada untuk menu paket */
+  contents?: MenuItemComponent[];
   price: number;
   quantity: number;
   isAvailable?: boolean;
@@ -18,6 +22,7 @@ type HomeMenuListItemProps = {
 export function HomeMenuListItem({
   imageUrl,
   name,
+  contents,
   price,
   quantity,
   isAvailable = true,
@@ -47,6 +52,11 @@ export function HomeMenuListItem({
 
         <div className="flex flex-col gap-2 p-3 pb-0">
           <h3 className="text-xs font-bold leading-4 text-zinc-900">{name}</h3>
+          {contents && (
+            <p className="line-clamp-2 text-[11px] leading-4 text-zinc-500">
+              {contents.map((content) => content.name).join(", ")}
+            </p>
+          )}
           <p className="text-sm font-bold text-zinc-900">
             {formatMenuPrice(price)}
           </p>

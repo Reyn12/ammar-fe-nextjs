@@ -285,6 +285,26 @@ export function HomeMenuDetailBottomSheet({
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               <div className="flex flex-col gap-5">
+                {item.components && (
+                  <section className="flex flex-col gap-2">
+                    <h3 className="text-sm font-bold text-zinc-900">Isi paket</h3>
+                    <ul className="flex flex-col gap-1.5 rounded-xl bg-zinc-50 px-3 py-2.5 ring-1 ring-zinc-100">
+                      {item.components.map((content) => (
+                        <li
+                          key={content.name}
+                          className="flex items-center gap-2 text-sm text-zinc-700"
+                        >
+                          <span
+                            className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#FA52A8]"
+                            aria-hidden
+                          />
+                          {content.qty}× {content.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
                 {variantGroups.map((group: MenuVariantGroup) => (
                   <OptionGroupSection
                     key={group.id}

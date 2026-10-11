@@ -69,6 +69,14 @@ function mapCustomization(groups: ApiAddonGroup[]): MenuCustomization | undefine
   return { variantGroups, addonGroups };
 }
 
+function mapComponents(components: ApiProduct["components"]): MenuItem["components"] {
+  const mapped = (components ?? []).flatMap((component) =>
+    component.name ? [{ name: component.name, qty: component.qty }] : [],
+  );
+
+  return mapped.length > 0 ? mapped : undefined;
+}
+
 export function mapProduct(product: ApiProduct): MenuItem {
   const customization = mapCustomization(product.addon_groups);
 
@@ -80,6 +88,7 @@ export function mapProduct(product: ApiProduct): MenuItem {
     kind: customization ? "configurable" : "simple",
     customization,
     isAvailable: product.is_available,
+    components: mapComponents(product.components),
   };
 }
 

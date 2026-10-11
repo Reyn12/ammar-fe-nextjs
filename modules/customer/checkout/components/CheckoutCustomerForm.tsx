@@ -1,4 +1,5 @@
 import { gooeyToast } from "goey-toast";
+import { useState } from "react";
 
 import { useAuth } from "@/modules/customer/auth/auth-context";
 import { GoogleSignInButton } from "@/modules/customer/auth/GoogleSignInButton";
@@ -6,6 +7,7 @@ import type {
   CustomerInfo,
   CustomerInfoErrors,
 } from "@/modules/customer/checkout/lib/validate-customer";
+import { LoadingDialog } from "@/shared/components/LoadingDialog";
 import { cn } from "@/shared/lib/cn";
 import { isFirebaseConfigured } from "@/shared/lib/firebase";
 
@@ -53,15 +55,19 @@ export function CheckoutCustomerForm({
   onChange,
 }: CheckoutCustomerFormProps) {
   const { user, status, signInWithGoogle } = useAuth();
+  const [isChangingAccount, setIsChangingAccount] = useState(false);
 
   // Pilih akun Google lain (popup selalu menampilkan pemilih akun).
   const handleChangeAccount = async () => {
+    setIsChangingAccount(true);
     try {
       await signInWithGoogle();
     } catch (error) {
       gooeyToast.error(
         error instanceof Error ? error.message : "Gagal mengganti akun Google",
       );
+    } finally {
+      setIsChangingAccount(false);
     }
   };
 
@@ -146,6 +152,8 @@ export function CheckoutCustomerForm({
           </div>
         )}
       </div>
+
+      <LoadingDialog open={isChangingAccount} message="Menghubungkan ke Google..." />
     </section>
   );
 }

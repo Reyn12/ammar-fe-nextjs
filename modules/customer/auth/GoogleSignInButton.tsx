@@ -4,6 +4,7 @@ import { gooeyToast } from "goey-toast";
 import { useState } from "react";
 
 import { useAuth } from "@/modules/customer/auth/auth-context";
+import { LoadingDialog } from "@/shared/components/LoadingDialog";
 import { cn } from "@/shared/lib/cn";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -58,17 +59,20 @@ export function GoogleSignInButton({
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={isLoading}
-      className={cn(
-        "flex w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:opacity-60",
-        className,
-      )}
-    >
-      <GoogleIcon className="h-5 w-5" />
-      {isLoading ? "Membuka Google..." : label}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={isLoading}
+        className={cn(
+          "flex w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50 disabled:opacity-60",
+          className,
+        )}
+      >
+        <GoogleIcon className="h-5 w-5" />
+        {isLoading ? "Membuka Google..." : label}
+      </button>
+      <LoadingDialog open={isLoading} message="Menghubungkan ke Google..." />
+    </>
   );
 }

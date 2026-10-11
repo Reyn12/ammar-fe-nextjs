@@ -19,6 +19,11 @@ export type ApiAddonGroup = {
   addons: ApiAddon[];
 };
 
+export type ApiProductComponent = {
+  name: string | null;
+  qty: number;
+};
+
 export type ApiProduct = {
   id: number;
   category_id: number;
@@ -27,6 +32,8 @@ export type ApiProduct = {
   price: number;
   is_available: boolean;
   addon_groups: ApiAddonGroup[];
+  /** Isi paket; kosong/tidak ada untuk menu biasa */
+  components?: ApiProductComponent[];
 };
 
 export type ApiMenuCategory = {
